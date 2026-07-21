@@ -1,0 +1,113 @@
+:root {
+  --pitch: #0b3d2e;
+  --pitch-line: #ffffff22;
+  --paper: #f3f1ea;
+  --ink: #10231c;
+  --accent: #ffb703;
+  --muted: #6b7d74;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+header {
+  background: var(--pitch);
+  color: var(--paper);
+  padding: 32px 20px 40px;
+  background-image:
+    repeating-linear-gradient(90deg, var(--pitch-line) 0 1px, transparent 1px 80px);
+}
+
+header h1 {
+  margin: 0;
+  font-size: clamp(24px, 4vw, 34px);
+  letter-spacing: -0.02em;
+}
+
+header p {
+  margin: 6px 0 0;
+  color: #cfe8dc;
+  font-size: 14px;
+}
+
+main {
+  max-width: 780px;
+  margin: -24px auto 60px;
+  padding: 0 16px;
+}
+
+.match {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  padding: 18px 20px;
+  margin-bottom: 12px;
+}
+
+.match-time {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+
+.teams {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  position: relative;
+}
+
+.teams .vs {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 13px;
+}
+
+.probs {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #eee;
+}
+
+.probs div:nth-child(1) { background: var(--accent); }
+.probs div:nth-child(2) { background: var(--muted); }
+.probs div:nth-child(3) { background: var(--pitch); }
+
+.prob-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+footer {
+  max-width: 780px;
+  margin: 0 auto 60px;
+  padding: 0 16px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+footer code {
+  background: #ffffffaa;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
