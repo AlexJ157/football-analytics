@@ -1,30 +1,78 @@
-const sampleMatches = [
-    { home: "Arsenal FC", away: "Coventry City", time: "Fri Aug 21, 8:00 PM BST",
-      prob: { home: 83.2, draw: 11.7, away: 5.1 } },
-    { home: "Hull City", away: "Manchester United", time: "Sat Aug 22, 12:30 PM BST",
-      prob: { home: 12.6, draw: 19.3, away: 68.1 } },
-    { home: "Everton FC", away: "Crystal Palace", time: "Sat Aug 22, 3:00 PM BST",
-      prob: { home: 44.8, draw: 27.3, away: 27.9 } },
-    { home: "Manchester City", away: "AFC Bournemouth", time: "Sun Aug 23, 2:00 PM BST",
-      prob: { home: 66.1, draw: 18.2, away: 15.7 } },
-    { home: "Newcastle United", away: "Liverpool FC", time: "Sun Aug 23, 4:30 PM BST",
-      prob: { home: 32.8, draw: 24.4, away: 42.8 } },
-  ];
+const sampleFixtures = {
+    "page": 1,
+    "has_more": true,
+    "matches": [
+        {"date_label": "Today", "time": "20:00", "home_team": "Arsenal FC", "away_team": "Coventry City", "competition": "Premier League"},
+        {"date_label": "Today", "time": "12:30", "home_team": "Hull City", "away_team": "Manchester United", "competition": "Premier League"},
+        {"date_label": "Today", "time": "21:00", "home_team": "Real Madrid", "away_team": "Girona FC", "competition": "La Liga"},
+        {"date_label": "Tomorrow", "time": "15:00", "home_team": "Everton FC", "away_team": "Crystal Palace", "competition": "Premier League"},
+        {"date_label": "Tomorrow", "time": "14:00", "home_team": "Manchester City", "away_team": "AFC Bournemouth", "competition": "Premier League"},
+        {"date_label": "Tomorrow", "time": "18:30", "home_team": "FC Barcelona", "away_team": "Sevilla FC", "competition": "La Liga"},
+        {"date_label": "Tomorrow", "time": "21:00", "home_team": "Atletico Madrid", "away_team": "Real Sociedad", "competition": "La Liga"},
+        {"date_label": "Tomorrow", "time": "20:45", "home_team": "Juventus FC", "away_team": "Empoli FC", "competition": "Serie A"},
+        {"date_label": "Saturday, 25 July", "time": "16:30", "home_team": "Newcastle United", "away_team": "Liverpool FC", "competition": "Premier League"},
+        {"date_label": "Saturday, 25 July", "time": "15:00", "home_team": "Chelsea FC", "away_team": "Brentford FC", "competition": "Premier League"},
+    ],
+};
+
+const sampleResults = {
+    "page": 1,
+    "has_more": true,
+    "matches": [
+        {"date_label": "Yesterday", "time": "20:00", "home_team": "Arsenal FC", "away_team": "Coventry City", "competition": "Premier League"},
+        {"date_label": "Yesterday", "time": "12:30", "home_team": "Hull City", "away_team": "Manchester United", "competition": "Premier League"},
+        {"date_label": "Yesterday", "time": "21:00", "home_team": "Real Madrid", "away_team": "Girona FC", "competition": "La Liga"},
+        {"date_label": "Saturday, 25 July", "time": "15:00", "home_team": "Everton FC", "away_team": "Crystal Palace", "competition": "Premier League"},
+        {"date_label": "Saturday, 25 July", "time": "14:00", "home_team": "Manchester City", "away_team": "AFC Bournemouth", "competition": "Premier League"},
+        {"date_label": "Saturday, 25 July", "time": "18:30", "home_team": "FC Barcelona", "away_team": "Sevilla FC", "competition": "La Liga"},
+        {"date_label": "Saturday, 25 July", "time": "21:00", "home_team": "Atletico Madrid", "away_team": "Real Sociedad", "competition": "La Liga"},
+        {"date_label": "Saturday, 25 July", "time": "20:45", "home_team": "Juventus FC", "away_team": "Empoli FC", "competition": "Serie A"},
+        {"date_label": "Saturday, 24 July", "time": "16:30", "home_team": "Newcastle United", "away_team": "Liverpool FC", "competition": "Premier League"},
+        {"date_label": "Saturday, 24 July", "time": "15:00", "home_team": "Chelsea FC", "away_team": "Brentford FC", "competition": "Premier League"},
+    ],
+};
+
+let matchesToDispay = sampleFixtures['matches']
 
 function renderMatches(matches) {
+    let lastDateLabel = "";
+
     for(const m of matches) {
         const container = document.getElementById("fixtures");
+
+        // Date label
+        if (m["date_label"] != lastDateLabel) {
+           const labelDiv = document.createElement("div");
+          labelDiv.classList.add("date-heading");
+          labelDiv.textContent = m["date_label"];
+
+          container.appendChild(labelDiv);
+          lastDateLabel = m["date_label"];
+        }
 
         // Match div
         const matchDiv = document.createElement("div");
         matchDiv.classList.add("match");
         container.appendChild(matchDiv);
 
-        // Match time div
-        const matchTimeDiv = document.createElement("div");
-        matchTimeDiv.classList.add("match-time");
-        matchDiv.appendChild(matchTimeDiv);
-        matchTimeDiv.textContent = m["time"];
+        // Match time span
+        const matchTimespan = document.createElement("span");
+        matchTimespan.classList.add("match-time");
+        matchTimespan.textContent = m["time"];
+
+        // competition tag span
+        const competitionTagspan = document.createElement("span");
+        competitionTagspan.classList.add('competition-tag');
+        competitionTagspan.textContent = m['competition'];
+
+        // Match time and competition tag div
+        const matchDetailsDiv = document.createElement('div');
+        matchDetailsDiv.classList.add('match-details-div');
+
+        matchDetailsDiv.appendChild(matchTimespan);
+        matchDetailsDiv.appendChild(competitionTagspan);
+        matchDiv.appendChild(matchDetailsDiv);
+        
 
         // Teams div
         const teamsDiv = document.createElement("div");
@@ -33,7 +81,7 @@ function renderMatches(matches) {
         // Home team span
         const homeTeamSpan = document.createElement("span");
         homeTeamSpan.classList.add("home-team");
-        homeTeamSpan.textContent = m["home"];
+        homeTeamSpan.textContent = m["home_team"];
 
         // vs span
         const vsSpan = document.createElement("span");
@@ -43,7 +91,7 @@ function renderMatches(matches) {
         // Away team span
         const awayTeamSpan = document.createElement("span");
         awayTeamSpan.classList.add("away-team");
-        awayTeamSpan.textContent = m["away"];
+        awayTeamSpan.textContent = m["away_team"];
 
         teamsDiv.appendChild(homeTeamSpan);
         teamsDiv.appendChild(vsSpan);
@@ -52,6 +100,59 @@ function renderMatches(matches) {
         matchDiv.appendChild(teamsDiv);
 
     }
-
 }
-renderMatches(sampleMatches)
+
+renderMatches(matchesToDispay);
+
+
+// Competition select event listener
+const competitionSelect = document.getElementById("competition-select");
+
+competitionSelect.addEventListener("change", () => {
+  const selectedCompetition = competitionSelect.value;
+  
+  if (selectedCompetition == 'all') {
+    renderMatches(matchesToDispay);
+  }
+  else {
+    const sortedMatches = [];
+
+    for (const m of matchesToDispay) {
+      if (m['competition'] == selectedCompetition) {
+        sortedMatches.push(m);
+      }
+    }
+    const container = document.getElementById("fixtures");
+    container.innerHTML = "";
+
+    renderMatches(sortedMatches);
+    // TODO need to make so only 10 appear maybe do on backend?
+  }
+});
+
+// Fixture and result toggle event listener
+const toggleButtons = document.querySelectorAll(".toggle-btn");
+
+for (const button of toggleButtons) {
+    button.addEventListener("click", () => {
+      const container = document.getElementById("fixtures");
+      container.innerHTML = "";
+
+      if (button.dataset.view === "fixtures") {
+        matchesToDispay = sampleFixtures["matches"];
+        renderMatches(matchesToDispay);
+
+        button.className = 'toggle-btn active'
+        document.querySelector('[data-view="results"]').className = 'toggle-btn'
+      }
+      else if (button.dataset.view === "results") { 
+        matchesToDispay = sampleResults["matches"];
+        renderMatches(matchesToDispay);
+
+        button.className = 'toggle-btn active'
+        document.querySelector('[data-view="fixtures"]').className = 'toggle-btn'
+      }
+      competitionSelect.value = "all";
+    });
+}
+

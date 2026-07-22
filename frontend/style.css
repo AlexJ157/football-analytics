@@ -36,9 +36,19 @@ header p {
   font-size: 14px;
 }
 
+.controls {
+    max-width: 780px;
+    margin: -24px auto 20px;
+    padding: 0 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
 main {
   max-width: 780px;
-  margin: -24px auto 60px;
+  margin: 16px auto 60px;
   padding: 0 16px;
 }
 
@@ -58,15 +68,37 @@ main {
   margin-bottom: 10px;
 }
 
+.competition-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--pitch);
+    background: #e4efe9;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-left: 8px;
+}
+
+.match-details-div {
+  margin-top: -5px;
+  margin-bottom: 5px;
+}
+
 .teams {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 17px;
   font-weight: 600;
+  margin-top: 10px;
   margin-bottom: 14px;
   position: relative;
 }
+
+.teams .home { text-align: left; display: flex; align-items: center; gap: 8px; }
+.teams .away { text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
 
 .teams .vs {
   position: absolute;
@@ -75,6 +107,19 @@ main {
   color: var(--muted);
   font-weight: 400;
   font-size: 13px;
+}
+
+.date-heading {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--pitch);
+    margin: 24px 0 10px;
+}
+
+.date-heading:first-child {
+    margin-top: 8px;
 }
 
 .probs {
@@ -95,6 +140,38 @@ main {
   font-size: 11px;
   color: var(--muted);
   margin-top: 6px;
+}
+
+.view-toggle {
+    display: inline-flex;
+    background: #e4efe9;
+    border-radius: 999px;
+    padding: 4px;
+}
+
+.toggle-btn {
+    border: none;
+    background: transparent;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.toggle-btn.active {
+    background: var(--pitch);
+    color: var(--paper);
+}
+
+#competition-select {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    color: var(--ink);
 }
 
 footer {
