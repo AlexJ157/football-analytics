@@ -12,21 +12,47 @@ headers = {
     "X-Auth-Token": API_TOKEN
 }
 
-def get_fixtures():
-    response = requests.get("https://api.football-data.org/v4/matches", 
-    headers=headers,
-    params={
-        "dateFrom": datetime.date.today(),
-        "dateTo": datetime.date.today() + datetime.timedelta(days=1)
+page_number = 1
+
+def get_matches(date_from, date_to):
+    response = requests.get(
+        "https://api.football-data.org/v4/matches",
+        headers=headers,
+        params={
+            "dateFrom": date_from,
+            "dateTo": date_to
         }
     )
 
-    fixtures = response.json()
-    return fixtures
+    print("STATUS:", response.status_code)
+    print("RESPONSE:", response.text)
 
-def format_fixtures(fixtures):
+    return response.json()
+
+
+def get_fixtures():
+    today = datetime.date.today()
+    return get_matches(today, today + datetime.timedelta(days=10))
+
+def get_results():
+    today = datetime.date.today()
+    return get_matches(today  - datetime.timedelta(days=10), today)
+
+def format_fixtures(fixtures, page_number):
+    formatted_response = {}
     formatted_fixtures = []
-    for match in fixtures['matches']:
+
+    starting_index = (page_number * 10) - 10
+    number_of_fixtures = fixtures['resultSet']['count']
+
+    if page_number * 10 < number_of_fixtures:
+        has_more = True
+        ending_index = (page_number * 10)
+    else:
+        has_more = False
+        ending_index = number_of_fixtures
+
+    for match in fixtures['matches'][starting_index:ending_index]:
         formatted_match_dict = {}
 
         formatted_match_dict['match_id'] = match['id']
@@ -64,6 +90,11 @@ def format_fixtures(fixtures):
 
         formatted_match_dict['competition'] = match['competition']['name']
 
-        print(formatted_match_dict)
+        formatted_fixtures.append(formatted_match_dict)
+
+    formatted_response['page'] = page_number
+    formatted_response['has_more'] = has_more
+    formatted_response['matches'] = formatted_fixtures
+    return formatted_response
         
 

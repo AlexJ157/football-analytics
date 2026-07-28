@@ -102,7 +102,33 @@ function renderMatches(matches) {
     }
 }
 
-renderMatches(matchesToDispay);
+
+async function loadFixtures() {
+  const response = await fetch("http://127.0.0.1:8000/api/fixtures")
+
+   if (!response.ok) {
+    console.error("Failed to load fixtures:", response.status);
+    return;
+  }
+  
+  const data = await response.json()
+  renderMatches(data['matches']);
+}
+
+async function loadResults() {
+  const response = await fetch("http://127.0.0.1:8000/api/results")
+  
+  if (!response.ok) {
+    console.error("Failed to load fixtures:", response.status);
+    return;
+  }
+
+  const data = await response.json()
+  renderMatches(data['matches'])
+}
+
+loadFixtures()
+
 
 
 // Competition select event listener
@@ -125,7 +151,7 @@ competitionSelect.addEventListener("change", () => {
     const container = document.getElementById("fixtures");
     container.innerHTML = "";
 
-    renderMatches(sortedMatches);
+    renderMatches(sortedMatches['matches']);
     // TODO need to make so only 10 appear maybe do on backend?
   }
 });
@@ -139,16 +165,13 @@ for (const button of toggleButtons) {
       container.innerHTML = "";
 
       if (button.dataset.view === "fixtures") {
-        matchesToDispay = sampleFixtures["matches"];
-        renderMatches(matchesToDispay);
-
+        loadFixtures()
         button.className = 'toggle-btn active'
         document.querySelector('[data-view="results"]').className = 'toggle-btn'
       }
-      else if (button.dataset.view === "results") { 
-        matchesToDispay = sampleResults["matches"];
-        renderMatches(matchesToDispay);
 
+      else if (button.dataset.view === "results") { 
+        loadResults()
         button.className = 'toggle-btn active'
         document.querySelector('[data-view="fixtures"]').className = 'toggle-btn'
       }
