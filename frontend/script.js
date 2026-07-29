@@ -32,79 +32,134 @@ const sampleResults = {
     ],
 };
 
-let matchesToDispay = sampleFixtures['matches']
+let matchesToDispay = sampleFixtures['matches']; // only used here and when displaying all competitions
+let page = 1; // hide show more button when has_more = False
+const showMoreContainer = document.getElementById("show-more-container");
+const showMoreButton = document.getElementById("show-more");
+const noMoreMatches = document.getElementById("no-more-matches");
 
-function renderMatches(matches) {
-    let lastDateLabel = "";
+function updateShowMore(data, message) {
+  showMoreContainer.style.display = "flex";
 
-    for(const m of matches) {
-        const container = document.getElementById("fixtures");
+  if (data.has_more) {
+      showMoreButton.style.display = "block";
+      noMoreMatches.style.display = "none";
+  } else {
+      showMoreButton.style.display = "none";
+      noMoreMatches.style.display = "block";
+      noMoreMatches.textContent = message;
+  }
+}
 
-        // Date label
-        if (m["date_label"] != lastDateLabel) {
-           const labelDiv = document.createElement("div");
-          labelDiv.classList.add("date-heading");
-          labelDiv.textContent = m["date_label"];
+function renderMatch(m) {
+  // Match div
+  const matchDiv = document.createElement("div");
+  matchDiv.classList.add("match");
+  
+  // Match time span
+  const matchTimespan = document.createElement("span");
+  matchTimespan.classList.add("match-time");
+  matchTimespan.textContent = m["time"];
 
-          container.appendChild(labelDiv);
-          lastDateLabel = m["date_label"];
-        }
+  // competition tag span
+  const competitionTagspan = document.createElement("span");
+  competitionTagspan.classList.add('competition-tag');
+  competitionTagspan.textContent = m['competition'];
 
-        // Match div
-        const matchDiv = document.createElement("div");
-        matchDiv.classList.add("match");
-        container.appendChild(matchDiv);
+  // Match time and competition tag div
+  const matchDetailsDiv = document.createElement('div');
+  matchDetailsDiv.classList.add('match-details-div');
 
-        // Match time span
-        const matchTimespan = document.createElement("span");
-        matchTimespan.classList.add("match-time");
-        matchTimespan.textContent = m["time"];
+  matchDetailsDiv.appendChild(matchTimespan);
+  matchDetailsDiv.appendChild(competitionTagspan);
+  matchDiv.appendChild(matchDetailsDiv);
+  
+  // Teams div
+  const teamsDiv = document.createElement("div");
+  teamsDiv.classList.add("teams");
 
-        // competition tag span
-        const competitionTagspan = document.createElement("span");
-        competitionTagspan.classList.add('competition-tag');
-        competitionTagspan.textContent = m['competition'];
+  // Home team span
+  const homeTeamSpan = document.createElement("span");
+  homeTeamSpan.classList.add("home-team");
+  homeTeamSpan.textContent = m["home_team"];
 
-        // Match time and competition tag div
-        const matchDetailsDiv = document.createElement('div');
-        matchDetailsDiv.classList.add('match-details-div');
+  // Away team span
+  const awayTeamSpan = document.createElement("span");
+  awayTeamSpan.classList.add("away-team");
+  awayTeamSpan.textContent = m["away_team"];
 
-        matchDetailsDiv.appendChild(matchTimespan);
-        matchDetailsDiv.appendChild(competitionTagspan);
-        matchDiv.appendChild(matchDetailsDiv);
-        
+  teamsDiv.appendChild(homeTeamSpan);
+  teamsDiv.appendChild(awayTeamSpan);
 
-        // Teams div
-        const teamsDiv = document.createElement("div");
-        teamsDiv.classList.add("teams");
+  return {
+    matchDiv: matchDiv,
+    teamsDiv: teamsDiv
+  };
+}
 
-        // Home team span
-        const homeTeamSpan = document.createElement("span");
-        homeTeamSpan.classList.add("home-team");
-        homeTeamSpan.textContent = m["home_team"];
+function renderResults(results) {
+  const container = document.getElementById("matches");
+  let lastDateLabel = "";
 
-        // vs span
-        const vsSpan = document.createElement("span");
-        vsSpan.classList.add("vs");
-        vsSpan.textContent = "vs";
+  for(const m of results) {
+    // Date label
+    if (m["date_label"] != lastDateLabel) {
+      const labelDiv = document.createElement("div");
+      labelDiv.classList.add("date-heading");
+      labelDiv.textContent = m["date_label"];
 
-        // Away team span
-        const awayTeamSpan = document.createElement("span");
-        awayTeamSpan.classList.add("away-team");
-        awayTeamSpan.textContent = m["away_team"];
-
-        teamsDiv.appendChild(homeTeamSpan);
-        teamsDiv.appendChild(vsSpan);
-        teamsDiv.appendChild(awayTeamSpan);
-
-        matchDiv.appendChild(teamsDiv);
-
+      container.appendChild(labelDiv);
+      lastDateLabel = m["date_label"];
     }
+
+    const matchDiv = renderMatch(m).matchDiv;
+    const teamsDiv = renderMatch(m).teamsDiv;
+
+    // Score span
+    const scoreSpan = document.createElement('span');
+    scoreSpan.classList.add("score");
+    scoreSpan.textContent = m['score'];
+    teamsDiv.appendChild(scoreSpan);
+    
+    matchDiv.appendChild(teamsDiv);
+
+    container.appendChild(matchDiv);
+  }
+}
+
+function renderFixtures(fixtures) {
+  const container = document.getElementById("matches");
+  let lastDateLabel = "";
+
+  for(const m of fixtures) {
+    // Date label
+    if (m["date_label"] != lastDateLabel) {
+      const labelDiv = document.createElement("div");
+      labelDiv.classList.add("date-heading");
+      labelDiv.textContent = m["date_label"];
+
+      container.appendChild(labelDiv);
+      lastDateLabel = m["date_label"];
+    }
+
+    const matchDiv = renderMatch(m).matchDiv;
+    const teamsDiv = renderMatch(m).teamsDiv;
+
+    // vs span
+    const vsSpan = document.createElement("span");
+    vsSpan.classList.add("vs");
+    vsSpan.textContent = "vs";
+    teamsDiv.appendChild(vsSpan);
+
+    matchDiv.appendChild(teamsDiv);
+
+    container.appendChild(matchDiv);
+  }
 }
 
 
-async function loadFixtures() {
-  const response = await fetch("http://127.0.0.1:8000/api/fixtures")
+async function loadFixtures(page=1) {
+  const response = await fetch(`http://127.0.0.1:8000/api/fixtures?page=${page}`)
 
    if (!response.ok) {
     console.error("Failed to load fixtures:", response.status);
@@ -112,11 +167,16 @@ async function loadFixtures() {
   }
   
   const data = await response.json()
-  renderMatches(data['matches']);
+  renderFixtures(data['matches']);
+
+  updateShowMore(
+    data,
+    "There are no more results from the last 10 days."
+  );
 }
 
-async function loadResults() {
-  const response = await fetch("http://127.0.0.1:8000/api/results")
+async function loadResults(page=1) {
+  const response = await fetch(`http://127.0.0.1:8000/api/results?page=${page}`)
   
   if (!response.ok) {
     console.error("Failed to load fixtures:", response.status);
@@ -124,12 +184,15 @@ async function loadResults() {
   }
 
   const data = await response.json()
-  renderMatches(data['matches'])
+  renderResults(data['matches'])
+
+  updateShowMore(
+    data,
+    "There are no more fixtures in the next 10 days."
+  );
 }
 
-loadFixtures()
-
-
+loadFixtures();
 
 // Competition select event listener
 const competitionSelect = document.getElementById("competition-select");
@@ -138,7 +201,7 @@ competitionSelect.addEventListener("change", () => {
   const selectedCompetition = competitionSelect.value;
   
   if (selectedCompetition == 'all') {
-    renderMatches(matchesToDispay);
+    renderMatch(matchesToDispay);
   }
   else {
     const sortedMatches = [];
@@ -151,17 +214,16 @@ competitionSelect.addEventListener("change", () => {
     const container = document.getElementById("fixtures");
     container.innerHTML = "";
 
-    renderMatches(sortedMatches['matches']);
-    // TODO need to make so only 10 appear maybe do on backend?
+    renderMatch(sortedMatches['matches']);
   }
 });
 
-// Fixture and result toggle event listener
+// Fixture and result toggle event listener - need to hide show more when switching
 const toggleButtons = document.querySelectorAll(".toggle-btn");
 
 for (const button of toggleButtons) {
     button.addEventListener("click", () => {
-      const container = document.getElementById("fixtures");
+      const container = document.getElementById("matches");
       container.innerHTML = "";
 
       if (button.dataset.view === "fixtures") {
@@ -179,3 +241,8 @@ for (const button of toggleButtons) {
     });
 }
 
+// Show more button event listener
+showMoreButton.addEventListener("click", () => {
+    page += 1;
+    loadFixtures(page)
+})

@@ -5,6 +5,9 @@
   --ink: #10231c;
   --accent: #ffb703;
   --muted: #6b7d74;
+  --win: #1f7a4d;
+  --loss: #b23a3a;
+  --draw: #8a8a70;
 }
 
 * { box-sizing: border-box; }
@@ -109,6 +112,29 @@ main {
   font-size: 13px;
 }
 
+.teams .score {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.result-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 999px;
+    color: white;
+}
+
+.result-tag.win { background: var(--win); }
+.result-tag.loss { background: var(--loss); }
+.result-tag.draw { background: var(--draw); }
+
 .date-heading {
     font-size: 13px;
     font-weight: 700;
@@ -172,6 +198,39 @@ main {
     border-radius: 6px;
     background: white;
     color: var(--ink);
+}
+
+#show-more-container {
+    display: none;
+}
+
+#show-more {
+    display: block;
+    margin: 16px auto 20px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--paper);
+    background: var(--pitch);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+#show-more:hover {
+    opacity: 0.85;
+}
+
+#show-more.hidden {
+    display: none;
+}
+
+#no-more-matches {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    margin: 16px 0 0;
+    display: none;
 }
 
 footer {
