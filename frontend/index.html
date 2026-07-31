@@ -19,15 +19,13 @@
                 <button class="toggle-btn" data-view="results">Results</button>
             </div>
 
-            <select id="competition-select">
-                <option value="all">All Competitions</option>
-                <option value="Premier League">Premier League</option>
-                <option value="La Liga">La Liga</option>
-                <option value="Serie A">Serie A</option>
-            </select>
+            <select id="competition-select"></select>
         </div>
-         
+
         <main id="matches"></main>
+
+        <div id="loading" class="loading">Loading...</div>
+        <div id="error-message"></div>
         
         <div id="show-more-container" class="controls" style="display: none;">
             <button id="show-more">Show More</button>

@@ -1,54 +1,43 @@
-const sampleFixtures = {
-    "page": 1,
-    "has_more": true,
-    "matches": [
-        {"date_label": "Today", "time": "20:00", "home_team": "Arsenal FC", "away_team": "Coventry City", "competition": "Premier League"},
-        {"date_label": "Today", "time": "12:30", "home_team": "Hull City", "away_team": "Manchester United", "competition": "Premier League"},
-        {"date_label": "Today", "time": "21:00", "home_team": "Real Madrid", "away_team": "Girona FC", "competition": "La Liga"},
-        {"date_label": "Tomorrow", "time": "15:00", "home_team": "Everton FC", "away_team": "Crystal Palace", "competition": "Premier League"},
-        {"date_label": "Tomorrow", "time": "14:00", "home_team": "Manchester City", "away_team": "AFC Bournemouth", "competition": "Premier League"},
-        {"date_label": "Tomorrow", "time": "18:30", "home_team": "FC Barcelona", "away_team": "Sevilla FC", "competition": "La Liga"},
-        {"date_label": "Tomorrow", "time": "21:00", "home_team": "Atletico Madrid", "away_team": "Real Sociedad", "competition": "La Liga"},
-        {"date_label": "Tomorrow", "time": "20:45", "home_team": "Juventus FC", "away_team": "Empoli FC", "competition": "Serie A"},
-        {"date_label": "Saturday, 25 July", "time": "16:30", "home_team": "Newcastle United", "away_team": "Liverpool FC", "competition": "Premier League"},
-        {"date_label": "Saturday, 25 July", "time": "15:00", "home_team": "Chelsea FC", "away_team": "Brentford FC", "competition": "Premier League"},
-    ],
-};
-
-const sampleResults = {
-    "page": 1,
-    "has_more": true,
-    "matches": [
-        {"date_label": "Yesterday", "time": "20:00", "home_team": "Arsenal FC", "away_team": "Coventry City", "competition": "Premier League"},
-        {"date_label": "Yesterday", "time": "12:30", "home_team": "Hull City", "away_team": "Manchester United", "competition": "Premier League"},
-        {"date_label": "Yesterday", "time": "21:00", "home_team": "Real Madrid", "away_team": "Girona FC", "competition": "La Liga"},
-        {"date_label": "Saturday, 25 July", "time": "15:00", "home_team": "Everton FC", "away_team": "Crystal Palace", "competition": "Premier League"},
-        {"date_label": "Saturday, 25 July", "time": "14:00", "home_team": "Manchester City", "away_team": "AFC Bournemouth", "competition": "Premier League"},
-        {"date_label": "Saturday, 25 July", "time": "18:30", "home_team": "FC Barcelona", "away_team": "Sevilla FC", "competition": "La Liga"},
-        {"date_label": "Saturday, 25 July", "time": "21:00", "home_team": "Atletico Madrid", "away_team": "Real Sociedad", "competition": "La Liga"},
-        {"date_label": "Saturday, 25 July", "time": "20:45", "home_team": "Juventus FC", "away_team": "Empoli FC", "competition": "Serie A"},
-        {"date_label": "Saturday, 24 July", "time": "16:30", "home_team": "Newcastle United", "away_team": "Liverpool FC", "competition": "Premier League"},
-        {"date_label": "Saturday, 24 July", "time": "15:00", "home_team": "Chelsea FC", "away_team": "Brentford FC", "competition": "Premier League"},
-    ],
-};
-
-let matchesToDispay = sampleFixtures['matches']; // only used here and when displaying all competitions
 let page = 1; // hide show more button when has_more = False
 const showMoreContainer = document.getElementById("show-more-container");
 const showMoreButton = document.getElementById("show-more");
 const noMoreMatches = document.getElementById("no-more-matches");
+const loading = document.getElementById("loading")
+const errorMessage = document.getElementById("error-message");
 
-function updateShowMore(data, message) {
-  showMoreContainer.style.display = "flex";
+const competitionIds = {
+  "Premier League": "PL",
+  "Champions League": "CL",
+  "La Liga": "PD",
+  "Serie A": "SA",
+  "Bundesliga": "BL1",
+  "Ligue 1": "FL1",
+  "Championship": "ELC",
+  "Eredivisie": "DED",
+  "Primeira Liga": "PPL",
+  "Serie A Brazil": "BSA",
+  "World Cup": "WC",
+  "European Championships": "EC"
+};
 
-  if (data.has_more) {
-      showMoreButton.style.display = "block";
-      noMoreMatches.style.display = "none";
-  } else {
-      showMoreButton.style.display = "none";
-      noMoreMatches.style.display = "block";
-      noMoreMatches.textContent = message;
-  }
+// Loading message
+function showLoading(message) {
+  loading.textContent = message;
+  loading.classList.remove("hidden");
+}
+
+function hideLoading() {
+  loading.classList.add("hidden");
+}
+
+// Error message
+function showError(message) {
+    errorMessage.textContent = message;
+    errorMessage.style.display = "flex";
+}
+
+function hideError() {
+    errorMessage.style.display = "none";
 }
 
 function renderMatch(m) {
@@ -157,92 +146,174 @@ function renderFixtures(fixtures) {
   }
 }
 
+function updateShowMore(data, message) {
+  showMoreContainer.style.display = "flex";
 
-async function loadFixtures(page=1) {
-  const response = await fetch(`http://127.0.0.1:8000/api/fixtures?page=${page}`)
-
-   if (!response.ok) {
-    console.error("Failed to load fixtures:", response.status);
-    return;
+  if (data.has_more) {
+      showMoreButton.style.display = "block";
+      noMoreMatches.style.display = "none";
+  } else {
+      showMoreButton.style.display = "none";
+      noMoreMatches.style.display = "block";
+      noMoreMatches.textContent = message;
   }
-  
-  const data = await response.json()
-  renderFixtures(data['matches']);
-
-  updateShowMore(
-    data,
-    "There are no more results from the last 10 days."
-  );
 }
 
-async function loadResults(page=1) {
-  const response = await fetch(`http://127.0.0.1:8000/api/results?page=${page}`)
-  
-  if (!response.ok) {
-    console.error("Failed to load fixtures:", response.status);
-    return;
-  }
+async function loadFixtures(page = 1, competition = "ALL") {
+    showMoreContainer.style.display = "none";
+    showLoading("Loading fixtures...");
+    hideError();
 
-  const data = await response.json()
-  renderResults(data['matches'])
+    try {
+        const response = await fetch(
+            `http://127.0.0.1:8000/api/fixtures?page=${page}&competition=${competition}`
+        );
 
-  updateShowMore(
-    data,
-    "There are no more fixtures in the next 10 days."
-  );
-}
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}`);
+        }
 
-loadFixtures();
+        const data = await response.json();
 
-// Competition select event listener
-const competitionSelect = document.getElementById("competition-select");
+        renderFixtures(data["matches"]);
 
-competitionSelect.addEventListener("change", () => {
-  const selectedCompetition = competitionSelect.value;
-  
-  if (selectedCompetition == 'all') {
-    renderMatch(matchesToDispay);
-  }
-  else {
-    const sortedMatches = [];
+        updateShowMore(
+            data,
+            "There are no more fixtures in the next 10 days."
+        );
 
-    for (const m of matchesToDispay) {
-      if (m['competition'] == selectedCompetition) {
-        sortedMatches.push(m);
-      }
+    } catch (error) {
+        console.error("Failed to load fixtures:", error);
+
+        showError(
+            "Unable to load fixtures. Please try again later."
+        );
+
+    } finally {
+        hideLoading();
     }
-    const container = document.getElementById("fixtures");
-    container.innerHTML = "";
-
-    renderMatch(sortedMatches['matches']);
-  }
-});
-
-// Fixture and result toggle event listener - need to hide show more when switching
-const toggleButtons = document.querySelectorAll(".toggle-btn");
-
-for (const button of toggleButtons) {
-    button.addEventListener("click", () => {
-      const container = document.getElementById("matches");
-      container.innerHTML = "";
-
-      if (button.dataset.view === "fixtures") {
-        loadFixtures()
-        button.className = 'toggle-btn active'
-        document.querySelector('[data-view="results"]').className = 'toggle-btn'
-      }
-
-      else if (button.dataset.view === "results") { 
-        loadResults()
-        button.className = 'toggle-btn active'
-        document.querySelector('[data-view="fixtures"]').className = 'toggle-btn'
-      }
-      competitionSelect.value = "all";
-    });
 }
 
-// Show more button event listener
-showMoreButton.addEventListener("click", () => {
+async function loadResults(page = 1, competition = "ALL") {
+    showMoreContainer.style.display = "none";
+    showLoading("Loading results...");
+    hideError();
+
+    try {
+        const response = await fetch(
+            `http://127.0.0.1:8000/api/results?page=${page}&competition=${competition}`
+        );
+
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        renderResults(data["matches"]);
+
+        updateShowMore(
+            data,
+            "There are no more results in the next 10 days."
+        );
+
+    } catch (error) {
+        console.error("Failed to load results:", error);
+
+        showError(
+            "Unable to load results. Please try again later."
+        );
+
+    } finally {
+        hideLoading();
+    }
+}
+
+function populateCompetitionDropdown() {
+    const competitionSelect = document.getElementById("competition-select");
+
+    const allOption = document.createElement("option");
+    allOption.value = "ALL";
+    allOption.textContent = "All Competitions";
+    competitionSelect.appendChild(allOption);
+
+    for (const [name, code] of Object.entries(competitionIds)) {
+        const option = document.createElement("option");
+        option.value = code;
+        option.textContent = name;
+        competitionSelect.appendChild(option);
+    }
+}
+
+function init() {
+  populateCompetitionDropdown();
+  loadFixtures();
+
+  // Event Listeners
+
+  // Fixture and result toggle event listener - need to hide show more when switching
+  const toggleButtons = document.querySelectorAll(".toggle-btn");
+  let currentView = 'fixtures'
+  let currentCompetition = 'ALL'
+
+  for (const button of toggleButtons) {
+      button.addEventListener("click", () => {
+        const container = document.getElementById("matches");
+        container.innerHTML = "";
+
+        if (button.dataset.view === "fixtures") {
+          loadFixtures(1, currentCompetition)
+          currentView = 'fixtures'
+          button.className = 'toggle-btn active'
+          document.querySelector('[data-view="results"]').className = 'toggle-btn'
+        }
+
+        else if (button.dataset.view === "results") { 
+          loadResults(1, currentCompetition)
+          currentView = 'results'
+          button.className = 'toggle-btn active'
+          document.querySelector('[data-view="fixtures"]').className = 'toggle-btn'
+        }
+      });
+  }
+
+  // Competition select event listener
+  const competitionSelect = document.getElementById("competition-select");
+
+  competitionSelect.addEventListener("change", () => {
+    const selectedCompetition = competitionSelect.value;
+    const selectedCompetitionId = competitionIds[selectedCompetition
+
+    ]
+    const container = document.getElementById("matches");
+    container.innerHTML = "";
+    
+    if (currentView == 'fixtures') {
+      loadFixtures(1, selectedCompetition);
+    }
+    else if (currentView == 'results') {
+      loadResults(1, selectedCompetition)
+    }
+  });
+
+  // Show more button event listener
+  showMoreButton.addEventListener("click", async () => {
     page += 1;
-    loadFixtures(page)
-})
+
+    // Hide button and show loading
+    showMoreButton.style.display = "none";
+    showLoading("Loading...");
+
+    if (currentView === "fixtures") {
+        await loadFixtures(page, currentCompetition);
+    } else {
+        await loadResults(page, currentCompetition);
+    }
+
+    // Hide loading
+    hideLoading();
+  });
+}
+
+init();
+

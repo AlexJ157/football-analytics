@@ -233,6 +233,58 @@ main {
     display: none;
 }
 
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding-top: 32px;
+    padding-bottom: 90px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.loading::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    border: 2px solid #d8d4c8;
+    border-top-color: var(--pitch);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading.hidden {
+    display: none;
+}
+
+#error-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #fbeaea;
+    border: 1px solid #e5b8b8;
+    color: #7a2e2e;
+    font-size: 14px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin: 16px 0;
+}
+
+#error-message::before {
+    content: "⚠";
+    font-size: 15px;
+    line-height: 1;
+}
+
+#error-message.hidden {
+    display: none;
+}
+
 footer {
   max-width: 780px;
   margin: 0 auto 60px;

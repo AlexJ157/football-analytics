@@ -14,28 +14,40 @@ headers = {
 
 page_number = 1
 
-def get_matches(date_from, date_to):
-    response = requests.get(
-        "https://api.football-data.org/v4/matches",
-        headers=headers,
-        params={
-            "dateFrom": date_from,
-            "dateTo": date_to
-        }
-    )
+def get_matches(date_from, date_to, competition):
+    if (competition == 'ALL'):
+        response = requests.get(
+            "https://api.football-data.org/v4/matches",
+            headers=headers,
+            params={
+                "dateFrom": date_from,
+                "dateTo": date_to
+            }
+        )
+    else:
+        response = requests.get(
+            "https://api.football-data.org/v4/matches",
+            headers=headers,
+            params={
+                "dateFrom": date_from,
+                "dateTo": date_to,
+                "competitions": {competition}
+            }
+        )
+
 
     print("STATUS:", response.status_code)
     print("RESPONSE:", response.text)
 
     return response.json()
 
-def get_fixtures():
-    today = datetime.date.today()
-    return get_matches(today, today + datetime.timedelta(days=10))
+def get_fixtures(competition):
+    today = datetime.date.today() + datetime.timedelta(days=30)
+    return get_matches(today, today + datetime.timedelta(days=10), competition)
 
-def get_results():
-    today = datetime.date.today()
-    return get_matches(today  - datetime.timedelta(days=10), today)
+def get_results(competition):
+    today = datetime.date.today() + datetime.timedelta(days=30)
+    return get_matches(today  - datetime.timedelta(days=10), today, competition)
 
 def format_match(match):
     formatted_match = {}
@@ -132,6 +144,3 @@ def format_results(results, page_number):
         "has_more": has_more,
         "matches": formatted_results
     }
-
-format_results(get_results(), 1)
-

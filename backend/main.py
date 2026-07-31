@@ -10,13 +10,15 @@ def root():
     }
 
 @app.get("/api/fixtures")
-def get_fixtures(page: int = 1):
-    fixtures = api.get_fixtures()
+def get_fixtures(page: int = 1, competition: str = 'ALL'):
+    fixtures = api.get_fixtures(competition)
+    print(fixtures)
     formatted_response = api.format_fixtures(fixtures, page)
+    print(competition)
     return formatted_response
 
 @app.get("/api/results")
-def get_results(page: int = 1):
-    results = api.get_results()
+def get_results(page: int = 1, competition: str = 'ALL'):
+    results = api.get_results(competition)
     formatted_response = api.format_results(results, page)
     return formatted_response
