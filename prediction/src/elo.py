@@ -1,5 +1,3 @@
-ratings = {}
-
 def expected_score(home_elo, away_elo, home_advantage):
     effective_home_elo = home_elo + home_advantage
     rating_difference = away_elo - effective_home_elo
