@@ -83,7 +83,11 @@ def format_match(match):
 
     # Other data
     formatted_match['home_team'] = match['homeTeam']['name']
+    formatted_match['home_team_id'] = match['homeTeam']['id']
+
     formatted_match['away_team'] = match['awayTeam']['name']
+    formatted_match['away_team_id'] = match['awayTeam']['id']
+
     formatted_match['competition'] = match['competition']['name']
 
     return formatted_match
@@ -144,3 +148,82 @@ def format_results(results, page_number):
         "has_more": has_more,
         "matches": formatted_results
     }
+
+def get_historical_data(team_id, number_of_matches, current_season):
+    response = requests.get(
+        f"https://api.football-data.org/v4/teams/{team_id}/matches",
+        headers=headers,
+        params={
+            "limit": number_of_matches,
+            "status": "FINISHED",
+            "competitions": "PL",
+            "season": current_season
+        }
+    )
+
+    data = response.json()
+
+    matches = data["matches"]
+
+    if len(matches) < number_of_matches:
+
+        matches_needed = number_of_matches - len(matches)
+
+        response = requests.get(
+            f"https://api.football-data.org/v4/teams/{team_id}/matches",
+            headers=headers,
+            params={
+                "limit": matches_needed,
+                "status": "FINISHED",
+                "competitions": "PL",
+                "season": current_season - 1
+            }
+        )
+
+        previous_data = response.json()
+
+        matches += previous_data["matches"]
+
+    return {
+        "matches": matches
+    }
+
+
+def format_hitorical_data(data, team_id):
+    formatted_data = []
+
+    for match in data['matches']:
+        match_dict = {}
+
+        if match['homeTeam']['id'] == team_id:
+            venue = 'home'
+            opponent = 'away'
+        elif match['awayTeam']['id'] == team_id:
+            venue = 'away'
+            opponent = 'home'
+
+        if match["score"]["winner"] == "DRAW":
+            result = "D"
+
+        elif match["score"]["winner"] == "HOME_TEAM":
+            result = "W" if venue == "home" else "L"
+
+        elif match["score"]["winner"] == "AWAY_TEAM":
+            result = "W" if venue == "away" else "L"
+
+        match_dict['result'] = result
+        match_dict['goals_scored'] = match["score"]["fullTime"][venue]
+        match_dict['goals_conceded'] = match['score']['fullTime'][opponent]
+
+        formatted_data.append(match_dict)
+
+    print(formatted_data)
+    return formatted_data
+
+    
+data = get_historical_data(57, 5, 2026)
+format_hitorical_data(data, 57)
+
+
+
+        
