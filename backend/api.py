@@ -217,12 +217,8 @@ def format_hitorical_data(data, team_id):
 
         formatted_data.append(match_dict)
 
-    print(formatted_data)
     return formatted_data
 
-    
-data = get_historical_data(57, 5, 2026)
-format_hitorical_data(data, 57)
 
 
 
