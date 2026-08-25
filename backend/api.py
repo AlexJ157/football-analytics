@@ -42,11 +42,11 @@ def get_matches(date_from, date_to, competition):
     return response.json()
 
 def get_fixtures(competition):
-    today = datetime.date.today() + datetime.timedelta(days=30)
+    today = datetime.date.today()
     return get_matches(today, today + datetime.timedelta(days=10), competition)
 
 def get_results(competition):
-    today = datetime.date.today() + datetime.timedelta(days=30)
+    today = datetime.date.today()
     return get_matches(today  - datetime.timedelta(days=10), today, competition)
 
 def format_match(match):
