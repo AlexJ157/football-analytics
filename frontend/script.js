@@ -282,9 +282,6 @@ function init() {
 
   competitionSelect.addEventListener("change", () => {
     const selectedCompetition = competitionSelect.value;
-    const selectedCompetitionId = competitionIds[selectedCompetition
-
-    ]
     const container = document.getElementById("matches");
     container.innerHTML = "";
     
