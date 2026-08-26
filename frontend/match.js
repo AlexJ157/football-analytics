@@ -33,28 +33,27 @@ const sampleMatch = {
     },
     h2h_meetings: [
         {
-            date_label: "Feb 2026",
+            date_label: "Feb 2026 · Premier League",
             competition: "Premier League",
             home_team: "Man City",
             away_team: "Arsenal",
-            score_home: 3,
-            score_away: 1,
+            score: "3-1"
+
         },
         {
             date_label: "Oct 2025",
             competition: "Premier League",
             home_team: "Arsenal",
             away_team: "Man City",
-            score_home: 1,
-            score_away: 0,
+            score: "1-0"
         },
         {
             date_label: "Apr 2025",
             competition: "Premier League",
             home_team: "Man City",
             away_team: "Arsenal",
-            score_home: 4,
-            score_away: 1,
+            score: "4-1"
+
         },
     ],
 
@@ -161,7 +160,6 @@ function renderHeadToHead(match){
 
     // h2h draw wins
     const draws = document.getElementById("h2h-draws");
-    console.log(match["h2h_summary"]["draws"])
     draws.textContent = match["h2h_summary"]["draws"];
 
     // h2h away wins
@@ -170,6 +168,75 @@ function renderHeadToHead(match){
     awayWins.textContent = match["h2h_summary"]["away_wins"];
     awayName.textContent = match["away_team"];
 
+    // past scores
+    const h2hRecord = document.getElementById("h2h-record");
+    for (m of match["h2h_meetings"]) {
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "h2h-row";
+
+        const dateDiv = document.createElement("div");
+        dateDiv.className = "h2h-date";
+
+        const homeDiv = document.createElement("div");
+        homeDiv.className = "h2h-home";
+
+        const scoreDiv = document.createElement("div");
+        scoreDiv.className = "h2h-score";
+
+        const awayDiv = document.createElement("div");
+        awayDiv.className = "h2h-away"
+
+        dateDiv.textContent = m["date_label"];
+        homeDiv.textContent = m["home_team"];
+        scoreDiv.textContent = m["score"];
+        awayDiv.textContent = m["away_team"];
+
+        rowDiv.append(dateDiv, homeDiv, scoreDiv, awayDiv);
+        h2hRecord.appendChild(rowDiv);
+    }
+}
+
+function renderTopScorers(match){
+    // home top scorers
+    const homeScorers = document.getElementById("home-top-scorers");
+    const homeTeam = document.getElementById("home-scorers");
+    homeTeam.textContent = match["home_team"];
+
+    for (player of match["home_top_scorers"]){
+        const scorerRow = document.createElement("div")
+        scorerRow.className = "scorer-row";
+
+        const playerNameDiv = document.createElement("div");
+        playerNameDiv.textContent = player["name"];
+
+        const playerGoalsDiv = document.createElement("div");
+        playerGoalsDiv.className = "scorer-goals";
+        playerGoalsDiv.textContent = player["goals"];
+
+        scorerRow.append(playerNameDiv, playerGoalsDiv);
+        homeScorers.appendChild(scorerRow);
+    }
+
+    // away top scorers
+    const awayScorers = document.getElementById("away-top-scorers");
+    const awayTeam = document.getElementById("away-scorers");
+    awayTeam.textContent = match["away_team"];
+
+    for (player of match["away_top_scorers"]){
+        const scorerRow = document.createElement("div")
+        scorerRow.className = "scorer-row";
+
+        const playerNameDiv = document.createElement("div");
+        playerNameDiv.textContent = player["name"];
+
+        const playerGoalsDiv = document.createElement("div");
+        playerGoalsDiv.className = "scorer-goals";
+        playerGoalsDiv.textContent = player["goals"];
+
+        scorerRow.append(playerNameDiv, playerGoalsDiv);
+        awayScorers.appendChild(scorerRow);
+    }
+    
 }
 
 
@@ -177,3 +244,4 @@ renderHeader(sampleMatch);
 renderPrediction(sampleMatch);
 renderForm(sampleMatch);
 renderHeadToHead(sampleMatch);
+renderTopScorers(sampleMatch);

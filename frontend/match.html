@@ -13,19 +13,19 @@
             <div>
                 <span id="competition-tag" class="competition-tag" ></span>
                 <div class="matchup">
-                    <!-- change for home side -->
+                    <!-- home side -->
                     <div class="side">
                         <img id="home-crest" class="crest" src="" alt="">
                         <div id="home-name" class="team-name"></div>
                     </div>
 
-                    <!-- change for date -->
+                    <!-- date -->
                     <div class="kickoff">
                         <div id="match-time"></div>
                         <div id="match-date" class="time"></div>
                     </div>
 
-                    <!-- change for away side -->
+                    <!-- away side -->
                     <div id="away-side" class="side">
                         <img id="away-crest" class="crest" src="" alt="">
                         <div id="away-name" class="team-name"></div>
@@ -38,7 +38,7 @@
             <div class="card">
                 <h2>Match Prediction</h2>
 
-                <!-- change for home prediction -->
+                <!-- home prediction -->
                 <div class="prob-row home">
                     <div id="home-win" class="label">fef</div>
                     <div id="home-prob" class="value"></div>
@@ -47,7 +47,7 @@
                     <div id="home-win-bar" class="prob-bar-fill home"></div>
                 </div>
                 
-                <!-- change for draw prediction -->
+                <!-- draw prediction -->
                 <div class="prob-row draw">
                     <div class="label">Draw</div>
                     <div id="draw-prob" class="value"></div>
@@ -56,7 +56,7 @@
                     <div id="draw-bar" class="prob-bar-fill draw"></div>
                 </div>
 
-                <!-- change for away prediction -->
+                <!-- away prediction -->
                 <div class="prob-row away">
                     <div id="away-win" class="label"></div>
                     <div id="away-prob" class="value"></div>
@@ -70,21 +70,21 @@
                 <h2>Last 5 Results</h2>
                 <div class="form-grid">
                     <div>
-                        <!-- change for home last 5 -->
+                        <!-- home last 5 -->
                         <div id="home-form-name" class="form-team-name"></div>
                         <div id="home-form" class="form-chips"></div>
                     </div>
                     
                     <div>
-                        <!-- change for home away 5 -->
+                        <!-- home away 5 -->
                         <div id="away-form-name" class="form-team-name">Arsenal</div>
                         <div id="away-form" class="form-chips"></div>
                     </div>
                 </div>
             </div>
 
-            <div class="card">
-                <h2>Head to Head — Last 5 Meetings</h2>
+            <div id="h2h-record" class="card">
+                <h2>Head to Head Record</h2>
                 <div class="h2h-summary">
                     <div>
                         <div id="h2h-home-wins" class="num"></div>
@@ -101,66 +101,21 @@
                         <div id="h2h-away-name" class="lbl"></div>
                     </div>
                 </div>
-
-                <div class="h2h-row">
-                    <div class="h2h-date">Feb 2026 · Premier League</div>
-                    <div class="h2h-home">Man City</div>
-                    <div class="h2h-score">3-1</div>
-                    <div class="h2h-away">Arsenal</div>
-                </div>
-
-                <div class="h2h-row">
-                    <div class="h2h-date">Oct 2025 · Premier League</div>
-                    <div class="h2h-home">Arsenal</div>
-                    <div class="h2h-score">1-0</div>
-                    <div class="h2h-away">Man City</div>
-                </div>
-
-                <div class="h2h-row">
-                    <div class="h2h-date">Apr 2025 · Premier League</div>
-                    <div class="h2h-home">Man City</div>
-                    <div class="h2h-score">4-1</div>
-                    <div class="h2h-away">Arsenal</div>
-                </div>
             </div>
 
             <div class="card">
                 <h2>Top Scorers This Season</h2>
                 <div class="scorers-columns">
-                    <!-- change for home top scorers -->
-                    <div>
-                        <div class="scorers-team-name">Man City</div>
-                        <div class="scorer-row">
-                            <div>E.Haaland</div>
-                            <div class="scorer-goals">14</div>
-                        </div>
-                        <div class="scorer-row">
-                            <div>P.Foden</div>
-                            <div class="scorer-goals">6</div>
-                        </div>
-                        <div class="scorer-row">
-                            <div>B. Silva</div>
-                            <div class="scorer-goals">5</div>
-                        </div>
+                    <!-- home top scorers -->
+                    <div id="home-top-scorers">
+                        <div id="home-scorers" class="scorers-team-name"></div>
                     </div>
 
-                    <!-- change for away top scorers -->
-                    <div>
-                        <div class="scorers-team-name">Man City</div>
-                        <div class="scorer-row">
-                            <div>B. Saka</div>
-                            <div class="scorer-goals">8</div>
-                        </div>
-                        <div class="scorer-row">
-                            <div>G. Jesus</div>
-                            <div class="scorer-goals">7</div>
-                        </div>
-                        <div class="scorer-row">
-                            <div>M. Ødegaard</div>
-                            <div class="scorer-goals">5</div>
-                        </div>
-                    </div>
+                    <!-- away top scorers -->
+                    <div id="away-top-scorers">
+                        <div id="away-scorers" class="scorers-team-name"></div>
                     
+                    </div>
                 </div>
             </div>
 
