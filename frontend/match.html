@@ -8,11 +8,174 @@
     </head>
 
     <body>
-        // match header - back-btn, game teams and time
+        <div class="match-header">
+            <a class="back-link" href="index.html">← Back to fixtures</a>
+            <div>
+                <span class="competition-tag">Prem - Matchday 1</span>
+                <div class="matchup">
+                    <!-- change for home side -->
+                    <div class="side">
+                        <div class="crest-circle ">MCI</div>
+                        <div class="team-name">Manchester City</div>
+                    </div>
+
+                    <!-- change for date -->
+                    <div class="kickoff">
+                        <div>Sat, 15 Aug</div>
+                        <div class="time">15:00 BST</div>
+                    </div>
+
+                    <!-- change for away side -->
+                    <div class="side">
+                        <div class="crest-circle ">ARS</div>
+                        <div class="team-name">Arsenal</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>
+
     <main>
-        // prediction box - probs of a win, draw and loss
-        // last 5 games
-        // head to head record
+        <div class="card">
+            <h2>Match Prediction</h2>
+
+            <!-- change for home prediction -->
+            <div class="prob-row home">
+                <div class="label">Man City win</div>
+                <div class="value">54%</div>
+            </div>
+            <div class="prob-bar-track">
+                <div class="prob-bar-fill home" style= "width:54%"></div>
+            </div>
+            
+            <!-- change for draw prediction -->
+            <div class="prob-row draw">
+                <div class="label">Draw</div>
+                <div class="value">24%</div>
+            </div>
+            <div class="prob-bar-track">
+                <div class="prob-bar-fill draw" style= "width:24%"></div>
+            </div>
+
+            <!-- change for away prediction -->
+            <div class="prob-row away">
+                <div class="label">Arsenal Win</div>
+                <div class="value">22%</div>
+            </div>
+            <div class="prob-bar-track">
+                <div class="prob-bar-fill away" style= "width:22%"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Last 5 Results</h2>
+            <div class="form-grid">
+                <div>
+                    <!-- change for home last 5 -->
+                    <div class="form-team-name">Manchester City</div>
+                    <div class="form-chips">
+                        <span class="form-chip w">W</span>
+                        <span class="form-chip w">W</span>
+                        <span class="form-chip l">L</span>
+                        <span class="form-chip d">D</span>
+                        <span class="form-chip w">W</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <!-- change for home away 5 -->
+                    <div class="form-team-name">Arsenal</div>
+                    <div class="form-chips">
+                        <span class="form-chip w">W</span>
+                        <span class="form-chip w">W</span>
+                        <span class="form-chip l">L</span>
+                        <span class="form-chip d">D</span>
+                        <span class="form-chip w">W</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Head to Head — Last 5 Meetings</h2>
+            <div class="h2h-summary">
+                <div>
+                    <div class="num">2</div>
+                    <div class="lbl">Man City Wins</div>
+                </div>
+
+                <div>
+                    <div class="num">1</div>
+                    <div class="lbl">Draws</div>
+                </div>
+
+                <div>
+                    <div class="num">2</div>
+                    <div class="lbl">Arsenal wins</div>
+                </div>
+            </div>
+
+            <div class="h2h-row">
+                <div class="h2h-date">Feb 2026 · Premier League</div>
+                <div class="h2h-home">Man City</div>
+                <div class="h2h-score">3-1</div>
+                <div class="h2h-away">Arsenal</div>
+            </div>
+
+            <div class="h2h-row">
+                <div class="h2h-date">Oct 2025 · Premier League</div>
+                <div class="h2h-home">Arsenal</div>
+                <div class="h2h-score">1-0</div>
+                <div class="h2h-away">Man City</div>
+            </div>
+
+            <div class="h2h-row">
+                <div class="h2h-date">Apr 2025 · Premier League</div>
+                <div class="h2h-home">Man City</div>
+                <div class="h2h-score">4-1</div>
+                <div class="h2h-away">Arsenal</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Top Scorers This Season</h2>
+            <div class="scorers-columns">
+                <!-- change for home top scorers -->
+                <div>
+                    <div class="scorers-team-name">Man City</div>
+                    <div class="scorer-row">
+                        <div>E.Haaland</div>
+                        <div class="scorer-goals">14</div>
+                    </div>
+                    <div class="scorer-row">
+                        <div>P.Foden</div>
+                        <div class="scorer-goals">6</div>
+                    </div>
+                    <div class="scorer-row">
+                        <div>B. Silva</div>
+                        <div class="scorer-goals">5</div>
+                    </div>
+                </div>
+
+                <!-- change for away top scorers -->
+                <div>
+                    <div class="scorers-team-name">Man City</div>
+                    <div class="scorer-row">
+                        <div>B. Saka</div>
+                        <div class="scorer-goals">8</div>
+                    </div>
+                    <div class="scorer-row">
+                        <div>G. Jesus</div>
+                        <div class="scorer-goals">7</div>
+                    </div>
+                    <div class="scorer-row">
+                        <div>M. Ødegaard</div>
+                        <div class="scorer-goals">5</div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
     </main>
 </html>
