@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv 
 import datetime
 import calendar
+from backend import match_details
 
 load_dotenv()
 
@@ -14,7 +15,7 @@ headers = {
 
 page_number = 1
 
-def get_matches(date_from, date_to, competition):
+def get_matches(date_from, date_to, competition): # TODO test if chenging limit allows me to get more matches
     if (competition == 'ALL'):
         response = requests.get(
             "https://api.football-data.org/v4/matches",
@@ -149,7 +150,7 @@ def format_results(results, page_number):
         "matches": formatted_results
     }
 
-def get_historical_data(team_id, number_of_matches, current_season):
+def get_past_matches(team_id, number_of_matches, current_season):
     response = requests.get(
         f"https://api.football-data.org/v4/teams/{team_id}/matches",
         headers=headers,
@@ -188,36 +189,33 @@ def get_historical_data(team_id, number_of_matches, current_season):
         "matches": matches
     }
 
+def get_head_to_head(match_id, limit=5): # /v4/matches/{id}/head2head
+    response = requests.get(
+        f"https://api.football-data.org/v4/matches/{match_id}/head2head",
+        headers=headers,
+        params={
+            "limit": limit
+        }
+    )
 
-def format_hitorical_data(data, team_id):
-    formatted_data = []
+    if response.status_code != 200:
+        return {}
 
-    for match in data['matches']:
-        match_dict = {}
+    h2h_data = response.json()
+    return h2h_data
 
-        if match['homeTeam']['id'] == team_id:
-            venue = 'home'
-            opponent = 'away'
-        elif match['awayTeam']['id'] == team_id:
-            venue = 'away'
-            opponent = 'home'
+def get_top_scorers(competition_id, season, limit=200):
+    response = requests.get(
+        f"https://api.football-data.org/v4/competitions/{competition_id}/scorers",
+        headers=headers,
+        params={
+            "limit": limit,
+            "season": season
+        }
+    )
+    top_scorers_data = response.json()
+    return top_scorers_data
 
-        if match["score"]["winner"] == "DRAW":
-            result = "D"
-
-        elif match["score"]["winner"] == "HOME_TEAM":
-            result = "W" if venue == "home" else "L"
-
-        elif match["score"]["winner"] == "AWAY_TEAM":
-            result = "W" if venue == "away" else "L"
-
-        match_dict['result'] = result
-        match_dict['goals_scored'] = match["score"]["fullTime"][venue]
-        match_dict['goals_conceded'] = match['score']['fullTime'][opponent]
-
-        formatted_data.append(match_dict)
-
-    return formatted_data
 
 
 

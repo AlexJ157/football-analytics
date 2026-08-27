@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from backend import api
-from prediction.src import features
-from prediction.src import predict
+from backend import match_details
 
 app = FastAPI()
 
@@ -40,16 +39,7 @@ def predict_match(match: MatchRequest):
     home_name = match.home_team.name
     away_name = match.away_team.name
 
-    home_data = api.get_historical_data(home_id, 5, 2026) # TODO change to update season automatically
-    away_data = api.get_historical_data(away_id, 5, 2026)
-
-    home_matches = api.format_hitorical_data(home_data, home_id)
-    away_matches = api.format_hitorical_data(away_data, away_id)
-
-    match_features = features.create_match_features(home_matches, away_matches, home_name, away_name)
-    prediction = predict.predict_match(match_features)
-
-    print(prediction)
-    return prediction
+    match_info = match_details.get_match_details(554920, home_id, home_name, away_id, away_name, 2026, "PL") # TODO change to update season automatically
+    return match_info
 
 
