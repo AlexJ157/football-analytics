@@ -13,7 +13,6 @@ def get_match_details(match_id, home_id, home_name, away_id, away_name, season, 
     # prediction
     match_features = features.create_match_features(home_matches, away_matches, home_name, away_name)
     prediction = predict.predict_match(match_features)
-    print(prediction)
 
     # form
     home_form = []
@@ -36,11 +35,14 @@ def get_match_details(match_id, home_id, home_name, away_id, away_name, season, 
         "prob_home": prediction["home_win_probability"],
         "prob_draw": prediction["draw_probability"],
         "prob_away": prediction["away_win_probability"],
+
         "home_form": home_form,
         "away_form": away_form,
+
         "got_h2h_data": h2h["got_h2h_data"],
         "h2h_summary": h2h["summary"],
         "h2h_meetings": h2h["meetings"],
+
         "home_top_scorers": top_scorers["home_top_scorers"],
         "away_top_scorers": top_scorers["away_top_scorers"]
     }
@@ -139,13 +141,3 @@ def format_top_scorers(data, home_id, away_id, number_of_scorers=3):
         "home_top_scorers": home_scorers,
         "away_top_scorers": away_scorers
     }
-
-get_match_details(
-    match_id = 554920,
-    home_id = 65,
-    home_name = "Man City",
-    away_id = 57,
-    away_name = "Arsenal",
-    season = 2026,
-    competition_id = "PL"
-)

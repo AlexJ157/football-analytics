@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv 
 import datetime
 import calendar
-from backend import match_details
 
 load_dotenv()
 
@@ -22,7 +21,8 @@ def get_matches(date_from, date_to, competition): # TODO test if chenging limit 
             headers=headers,
             params={
                 "dateFrom": date_from,
-                "dateTo": date_to
+                "dateTo": date_to,
+                "limit": 1
             }
         )
     else:
@@ -38,7 +38,7 @@ def get_matches(date_from, date_to, competition): # TODO test if chenging limit 
 
 
     print("STATUS:", response.status_code)
-    print("RESPONSE:", response.text)
+    # print("RESPONSE:", response.text)
 
     return response.json()
 
@@ -51,10 +51,6 @@ def get_results(competition):
     return get_matches(today  - datetime.timedelta(days=10), today, competition)
 
 def format_match(match):
-    formatted_match = {}
-
-    formatted_match['match_id'] = match['id']
-
     # format date
     full_date_time = match['utcDate']
 
@@ -79,25 +75,28 @@ def format_match(match):
     else:
         date_label = day + ', ' + str(day_number) + " " + month_name
 
-    formatted_match['date_label'] = date_label
-    formatted_match['time'] = match_time
-
-    # Other data
-    formatted_match['home_team'] = match['homeTeam']['name']
-    formatted_match['home_team_id'] = match['homeTeam']['id']
-
-    formatted_match['away_team'] = match['awayTeam']['name']
-    formatted_match['away_team_id'] = match['awayTeam']['id']
-
-    formatted_match['competition'] = match['competition']['name']
-
-    return formatted_match
+    return {
+        'match_id': match['id'],
+        'date_label': date_label,
+        'time': match_time,
+        'matchday': match['season']['matchday'],
+        'home_team': match['homeTeam']['name'],
+        'home_short_name': match['shortName'],
+        'home_team_id': match['homeTeam']['id'],
+        'home_badge': match['homeTeam']['crest'],
+        'away_team': match['awayTeam']['name'],
+        'home_short_name': match['shortName'],
+        'away_team_id': match['awayTeam']['id'],
+        'away_badge': match['awayTeam']['badge'],
+        'competition': match['competition']['name'],
+        'competition_code': match['competition']['code']
+    }
 
 def format_fixtures(fixtures, page_number):
     formatted_fixtures = []
     
     # add logic for which to display
-    
+
     starting_index = (page_number * 10) - 10
     number_of_fixtures = fixtures['resultSet']['count']
 
@@ -163,6 +162,7 @@ def get_past_matches(team_id, number_of_matches, current_season):
     )
 
     data = response.json()
+    print(data)
 
     matches = data["matches"]
 
@@ -215,9 +215,5 @@ def get_top_scorers(competition_id, season, limit=200):
     )
     top_scorers_data = response.json()
     return top_scorers_data
-
-
-
-
 
         
