@@ -35,6 +35,10 @@ def initialise_team(team, ratings):
     if team not in ratings:
         ratings[team] = 1500
 
+def regress_ratings(ratings, factor=0.75):
+    for team in ratings:
+        ratings[team] = 1500 + factor * (ratings[team] - 1500)
+
 def process_match(home_team, away_team, result, ratings):
     if home_team not in ratings:
         initialise_team(home_team, ratings)
@@ -44,7 +48,7 @@ def process_match(home_team, away_team, result, ratings):
     home_elo = ratings.get(home_team)
     away_elo = ratings.get(away_team)
 
-    new_home_elo, new_away_elo = update_match_ratings(home_elo, away_elo, result, 20, 100) # TODO change k_factor and home_adv
+    new_home_elo, new_away_elo = update_match_ratings(home_elo, away_elo, result, 30, 100) # TODO change k_factor and home_adv
 
     ratings[home_team] = new_home_elo
     ratings[away_team] = new_away_elo

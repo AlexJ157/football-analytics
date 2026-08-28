@@ -2,6 +2,14 @@ from datetime import datetime
 from backend import api
 from prediction.src import features
 from prediction.src import predict
+from pathlib import Path
+import joblib
+
+SCALER_PATH = Path(__file__).resolve().parent.parent / "prediction" / "models" / "scaler.pkl"
+FEATURE_COLUMNS_PATH = Path(__file__).resolve().parent.parent / "prediction" / "models" / "feature_columns.pkl"
+
+scaler = joblib.load(SCALER_PATH)
+feature_columns = joblib.load(FEATURE_COLUMNS_PATH)
 
 def get_match_details(match_id, home_id, home_name, away_id, away_name, season, competition_id):
     home_data = api.get_past_matches(home_id, 5, season) 
@@ -11,8 +19,11 @@ def get_match_details(match_id, home_id, home_name, away_id, away_name, season, 
     away_matches = format_past_matches(away_data, away_id)
 
     # prediction
-    match_features = features.create_match_features(home_matches, away_matches, home_name, away_name)
-    prediction = predict.predict_match(match_features)
+    raw_features = features.create_match_features(home_matches, away_matches, home_name, away_name)
+    raw_features = raw_features[feature_columns]
+
+    scaled_features = scaler.transform(raw_features)
+    prediction = predict.predict_match(scaled_features)
 
     # form
     home_form = []
@@ -25,7 +36,7 @@ def get_match_details(match_id, home_id, home_name, away_id, away_name, season, 
 
     # h2h
     h2h_data = api.get_head_to_head(match_id, 5)
-    h2h = format_head_to_head(h2h_data)
+    h2h = format_head_to_head(h2h_data, home_id, away_id)
 
     # top scorers
     scorer_data = api.get_top_scorers(competition_id, season)
@@ -79,7 +90,7 @@ def format_past_matches(data, team_id):
     return formatted_data
 
 
-def format_head_to_head(h2h_data):
+def format_head_to_head(h2h_data, home_id, away_id):
     if not h2h_data:
         return {
             "got_h2h_data": False,
@@ -89,9 +100,29 @@ def format_head_to_head(h2h_data):
 
     h2h_summary = {}
 
-    h2h_summary["home_wins"] = h2h_data["aggregates"]["homeTeam"]["wins"]
-    h2h_summary["draws"] = h2h_data["aggregates"]["homeTeam"]["draws"]
-    h2h_summary["away_wins"] = h2h_data["aggregates"]["awayTeam"]["wins"]
+    home_wins = 0
+    draws = 0
+    away_wins = 0
+
+    for m in h2h_data["matches"]:
+        if m["score"]["winner"] == "DRAW":
+            draws += 1
+
+        elif m["score"]["winner"] == "HOME_TEAM":
+            if m["homeTeam"]["id"] == home_id:
+                home_wins += 1
+            elif m["homeTeam"]["id"] == away_id:
+                away_wins += 1
+
+        elif m["score"]["winner"] == "AWAY_TEAM":
+            if m["awayTeam"]["id"] == home_id:
+                home_wins += 1
+            elif m["awayTeam"]["id"] == away_id:
+                away_wins += 1
+
+    h2h_summary["home_wins"] = home_wins
+    h2h_summary["draws"] = draws
+    h2h_summary["away_wins"] = away_wins
 
     h2h_meetings = []
 
@@ -141,3 +172,6 @@ def format_top_scorers(data, home_id, away_id, number_of_scorers=3):
         "home_top_scorers": home_scorers,
         "away_top_scorers": away_scorers
     }
+
+
+get_match_details(560555, 354, "Crystal Palace", 65, "Man City", 2026, "PL")

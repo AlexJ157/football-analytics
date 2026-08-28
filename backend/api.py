@@ -162,7 +162,6 @@ def get_past_matches(team_id, number_of_matches, current_season):
     )
 
     data = response.json()
-    print(data)
 
     matches = data["matches"]
 
@@ -215,5 +214,3 @@ def get_top_scorers(competition_id, season, limit=200):
     )
     top_scorers_data = response.json()
     return top_scorers_data
-
-        
