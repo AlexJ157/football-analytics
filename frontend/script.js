@@ -40,10 +40,16 @@ function hideError() {
     errorMessage.style.display = "none";
 }
 
-function renderMatch(m) {
+function renderMatch(m, linkable=false) {
   // Match div
-  const matchDiv = document.createElement("div");
+  const matchDiv = document.createElement(linkable ? "a" : "div");
   matchDiv.classList.add("match");
+  if (linkable) {
+    matchDiv.href = `match.html?id=${m["match_id"]}`;
+    matchDiv.addEventListener("click", () => {
+      sessionStorage.setItem("selectedMatch", JSON.stringify(m));
+    });
+  }
   
   // Match time span
   const matchTimespan = document.createElement("span");
@@ -101,8 +107,7 @@ function renderResults(results) {
       lastDateLabel = m["date_label"];
     }
 
-    const matchDiv = renderMatch(m).matchDiv;
-    const teamsDiv = renderMatch(m).teamsDiv;
+    const { matchDiv, teamsDiv } = renderMatch(m);
 
     // Score span
     const scoreSpan = document.createElement('span');
@@ -131,8 +136,7 @@ function renderFixtures(fixtures) {
       lastDateLabel = m["date_label"];
     }
 
-    const matchDiv = renderMatch(m).matchDiv;
-    const teamsDiv = renderMatch(m).teamsDiv;
+    const {matchDiv, teamsDiv} = renderMatch(m, true);
 
     // vs span
     const vsSpan = document.createElement("span");
@@ -175,7 +179,7 @@ async function loadFixtures(page = 1, competition = "ALL") {
 
         const data = await response.json();
 
-        renderFixtures(data["matches"]);
+        renderFixtures(data["matches"], true);
 
         updateShowMore(
             data,

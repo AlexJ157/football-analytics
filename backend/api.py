@@ -38,7 +38,7 @@ def get_matches(date_from, date_to, competition): # TODO test if chenging limit 
 
 
     print("STATUS:", response.status_code)
-    # print("RESPONSE:", response.text)
+    #print("RESPONSE:", response.text)
 
     return response.json()
 
@@ -79,15 +79,15 @@ def format_match(match):
         'match_id': match['id'],
         'date_label': date_label,
         'time': match_time,
-        'matchday': match['season']['matchday'],
+        'matchday': match['matchday'],
         'home_team': match['homeTeam']['name'],
-        'home_short_name': match['shortName'],
+        'home_short_name': match['homeTeam']['shortName'],
         'home_team_id': match['homeTeam']['id'],
         'home_badge': match['homeTeam']['crest'],
         'away_team': match['awayTeam']['name'],
-        'home_short_name': match['shortName'],
+        'away_short_name': match['awayTeam']['shortName'],
         'away_team_id': match['awayTeam']['id'],
-        'away_badge': match['awayTeam']['badge'],
+        'away_badge': match['awayTeam']['crest'],
         'competition': match['competition']['name'],
         'competition_code': match['competition']['code']
     }
@@ -162,8 +162,8 @@ def get_past_matches(team_id, number_of_matches, current_season):
     )
 
     data = response.json()
-
     matches = data["matches"]
+    current_season_count = len(matches)
 
     if len(matches) < number_of_matches:
 
@@ -183,12 +183,17 @@ def get_past_matches(team_id, number_of_matches, current_season):
         previous_data = response.json()
 
         matches += previous_data["matches"]
+        matches.sort(key=lambda m: m["utcDate"], reverse=True)
+
+    if response.status_code != 200: # TODO allow form but not prediciton by moving this
+        return {}
 
     return {
-        "matches": matches
+        "matches": matches,
+        "current_season_count": current_season_count
     }
 
-def get_head_to_head(match_id, limit=5): # /v4/matches/{id}/head2head
+def get_head_to_head(match_id, limit=5):
     response = requests.get(
         f"https://api.football-data.org/v4/matches/{match_id}/head2head",
         headers=headers,
@@ -212,5 +217,9 @@ def get_top_scorers(competition_id, season, limit=200):
             "season": season
         }
     )
+
+    if response.status_code != 200:
+        return {}
+    
     top_scorers_data = response.json()
     return top_scorers_data

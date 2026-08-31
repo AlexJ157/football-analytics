@@ -70,6 +70,25 @@ const sampleMatch = {
     ],
 };
 
+async function loadMatch() {
+  const stored = sessionStorage.getItem("selectedMatch");
+  const match = JSON.parse(stored);
+
+  const response = await fetch("http://127.0.0.1:8000/api/predict", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(match)
+  });
+
+  const data = await response.json();
+
+  renderHeader(data);
+  renderPrediction(data);
+  renderForm(data);
+  renderHeadToHead(data);
+  renderTopScorers(data);
+}
+
 function renderHeader(match) {
     // competition
     const competitionTag = document.getElementById("competition-tag");
@@ -239,9 +258,4 @@ function renderTopScorers(match){
     
 }
 
-
-renderHeader(sampleMatch);
-renderPrediction(sampleMatch);
-renderForm(sampleMatch);
-renderHeadToHead(sampleMatch);
-renderTopScorers(sampleMatch);
+loadMatch();

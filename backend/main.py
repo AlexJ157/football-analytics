@@ -5,21 +5,22 @@ from backend import match_details
 
 app = FastAPI()
 
-class Team(BaseModel):
-    id: int
-    name: str
-    short_name: str
-    badge: str
-
 class MatchRequest(BaseModel):
     match_id: int
-    competition: str
-    competitions_code: str
-    date: str
+    date_label: str
     time: str
     matchday: int
-    home_team: Team
-    away_team: Team
+    home_team: str
+    home_short_name: str
+    home_team_id: int
+    home_badge: str
+    away_team: str
+    away_short_name: str
+    away_team_id: int
+    away_badge: str
+    competition: str
+    competition_code: str
+
 
 @app.get("/")
 def root():
@@ -41,34 +42,27 @@ def get_results(page: int = 1, competition: str = 'ALL'):
 
 @app.post("/api/predict")
 def predict_match(match: MatchRequest):
-    match_id = match.match_id
-    competition_code = match.competitions_code
-
-    home_id = match.home_team.id
-    home_name = match.home_team.name
-    home_short_name = match.home_team.short_name
-
-    away_id = match.away_team.id
-    away_name = match.away_team.name
-    away_short_name = match.away_team.short_name
+    match_stats = match_details.get_match_details(
+        match.match_id,
+        match.home_team_id, match.home_short_name,
+        match.away_team_id, match.away_short_name,
+        2026, match.competition_code  # TODO: auto-update season
+    )
 
     match_info = {
-        "match_id": match_id,
+        "match_id": match.match_id,
         "competition_name": match.competition,
-        "competition_code": competition_code,
+        "competition_code": match.competition_code,
         "matchday": match.matchday,
-        "date_label": match.date,
+        "date_label": match.date_label,
         "time": match.time,
-
-        "home_team": home_name,
-        "away_team": away_name,
-        "home_short": home_short_name,
-        "away_short": away_short_name,
-        "home_crest": match.home_team.badge,
-        "away_crest": match.away_team.badge
+        "home_team": match.home_team,
+        "away_team": match.away_team,
+        "home_short": match.home_short_name,
+        "away_short": match.away_short_name,
+        "home_crest": match.home_badge,
+        "away_crest": match.away_badge
     }
-
-    match_stats = match_details.get_match_details(match_id, home_id, home_short_name, away_id, away_short_name, 2026, competition_code) # TODO change to update season automatically
 
     return match_info | match_stats
 

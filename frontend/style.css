@@ -61,6 +61,13 @@ main {
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   padding: 18px 20px;
   margin-bottom: 12px;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.match:visited {
+  color: inherit;
 }
 
 .match-time {

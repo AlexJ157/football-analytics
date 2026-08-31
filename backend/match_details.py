@@ -18,21 +18,31 @@ def get_match_details(match_id, home_id, home_name, away_id, away_name, season, 
     home_matches = format_past_matches(home_data, home_id)
     away_matches = format_past_matches(away_data, away_id)
 
-    # prediction
-    raw_features = features.create_match_features(home_matches, away_matches, home_name, away_name)
-    raw_features = raw_features[feature_columns]
+    if home_matches["got_match_data"] and away_matches["got_match_data"]:
+        # prediction
+        raw_features = features.create_match_features(home_matches["formatted_data"], away_matches["formatted_data"], home_name, away_name)
+        raw_features = raw_features[feature_columns]
 
-    scaled_features = scaler.transform(raw_features)
-    prediction = predict.predict_match(scaled_features)
+        scaled_features = scaler.transform(raw_features)
+        prediction = predict.predict_match(scaled_features)
 
-    # form
-    home_form = []
-    away_form = []
-    for m in home_matches:
-        home_form.append(m["result"])
+        # form
+        home_form = []
+        away_form = []
 
-    for m in away_matches:
-        away_form.append(m["result"])
+    
+        for m in home_matches["formatted_data"][:home_data["current_season_count"]]:
+            home_form.append(m["result"])
+    
+        for m in away_matches["formatted_data"][:away_data["current_season_count"]]:
+            away_form.append(m["result"])
+
+        got_match_data = True
+
+    else:
+        got_match_data = False
+
+    
 
     # h2h
     h2h_data = api.get_head_to_head(match_id, 5)
@@ -43,6 +53,7 @@ def get_match_details(match_id, home_id, home_name, away_id, away_name, season, 
     top_scorers = format_top_scorers(scorer_data, home_id, away_id)
 
     return {
+        "got_match_data": got_match_data,
         "prob_home": prediction["home_win_probability"],
         "prob_draw": prediction["draw_probability"],
         "prob_away": prediction["away_win_probability"],
@@ -54,12 +65,19 @@ def get_match_details(match_id, home_id, home_name, away_id, away_name, season, 
         "h2h_summary": h2h["summary"],
         "h2h_meetings": h2h["meetings"],
 
+        "got_scorer_data": top_scorers["got_scorer_data"],
         "home_top_scorers": top_scorers["home_top_scorers"],
         "away_top_scorers": top_scorers["away_top_scorers"]
     }
     
 
 def format_past_matches(data, team_id):
+    if not data:
+        return {
+            "got_match_data": False,
+            "formatted_data": {}
+        }
+    
     formatted_data = []
 
     for match in data['matches']:
@@ -87,7 +105,11 @@ def format_past_matches(data, team_id):
 
         formatted_data.append(match_dict)
 
-    return formatted_data
+    return {
+        "got_match_data": True,
+        "formatted_data": formatted_data
+    }
+
 
 
 def format_head_to_head(h2h_data, home_id, away_id):
@@ -149,6 +171,12 @@ def format_head_to_head(h2h_data, home_id, away_id):
 
 
 def format_top_scorers(data, home_id, away_id, number_of_scorers=3):
+    if not data:
+        return {
+            "got_scorer_data": False,
+            "home_top_scorers": [],
+            "away_top_scorers": []
+        }
     home_scorers = []
     away_scorers = []
 
@@ -169,9 +197,8 @@ def format_top_scorers(data, home_id, away_id, number_of_scorers=3):
             break
 
     return {
+        "got_scorer_data": True,
         "home_top_scorers": home_scorers,
         "away_top_scorers": away_scorers
     }
-
-
-get_match_details(560555, 354, "Crystal Palace", 65, "Man City", 2026, "PL")
+# get_match_details(560555, 354, "Crystal Palace", 65, "Man City", 2026, "PL")
