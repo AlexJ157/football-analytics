@@ -1,92 +1,68 @@
-const sampleMatch = {
-    // ---- Header info ----
-    match_id: 554920,
-    competition_name: "Premier League",
-    competition_code: "PL",   // used for your "prediction unavailable" check
-    matchday: 3,
-    date_label: "Sat, 15 Aug",
-    time: "15:00 BST",
+const loading = document.getElementById("loading");
+const errorMessage = document.getElementById("error-message");
 
-    home_team: "Manchester City",
-    away_team: "Arsenal FC",
-    home_short: "Man City",
-    away_short: "Arsenal",
-    home_crest: "https://crests.football-data.org/65.png",
-    away_crest: "https://crests.football-data.org/57.png",
+// Loading message
+function showLoading(message) {
+    loading.textContent = message;
+    loading.classList.remove("hidden");
+}
 
-    // ---- Prediction ----
-    prob_home: 54,
-    prob_draw: 24,
-    prob_away: 22,
-    // no predicted_score fields — not something your model produces
+function hideLoading() {
+    loading.classList.add("hidden");
+}
 
-    // ---- Last 5 results, per team ----
-    // Each letter represents one past match result for that team, oldest to newest
-    home_form: ["W", "W", "D", "W", "L"],
-    away_form: ["W", "D", "W", "W", "W"],
+// Error message
+function showError(message) {
+    errorMessage.textContent = message;
+    errorMessage.style.display = "flex";
+}
 
-    // ---- Head to head ----
-    h2h_summary: {
-        home_wins: 2,
-        draws: 1,
-        away_wins: 2,
-    },
-    h2h_meetings: [
-        {
-            date_label: "Feb 2026 · Premier League",
-            competition: "Premier League",
-            home_team: "Man City",
-            away_team: "Arsenal",
-            score: "3-1"
-
-        },
-        {
-            date_label: "Oct 2025",
-            competition: "Premier League",
-            home_team: "Arsenal",
-            away_team: "Man City",
-            score: "1-0"
-        },
-        {
-            date_label: "Apr 2025",
-            competition: "Premier League",
-            home_team: "Man City",
-            away_team: "Arsenal",
-            score: "4-1"
-
-        },
-    ],
-
-    // ---- Top scorers, per team ----
-    home_top_scorers: [
-        { name: "E. Haaland", goals: 14 },
-        { name: "P. Foden", goals: 7 },
-        { name: "B. Silva", goals: 5 },
-    ],
-    away_top_scorers: [
-        { name: "B. Saka", goals: 9 },
-        { name: "G. Jesus", goals: 8 },
-        { name: "M. Ødegaard", goals: 6 },
-    ],
-};
+function hideError() {
+    errorMessage.style.display = "none";
+}
 
 async function loadMatch() {
-  const stored = sessionStorage.getItem("selectedMatch");
-  const match = JSON.parse(stored);
+    const stored = sessionStorage.getItem("selectedMatch");
+    const match = JSON.parse(stored);
 
-  const response = await fetch("http://127.0.0.1:8000/api/predict", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(match)
-  });
+    const mainEl = document.getElementById("main-element");
 
-  const data = await response.json();
+    showLoading("Loading match details...");
+    hideError();
+    mainEl.classList.add("hidden");
 
-  renderHeader(data);
-  renderPrediction(data);
-  renderForm(data);
-  renderHeadToHead(data);
-  renderTopScorers(data);
+    try {
+        const response = await fetch("http://127.0.0.1:8000/api/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(match)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        renderHeader(data);
+        renderPrediction(data);
+        renderForm(data);
+        renderHeadToHead(data);
+        renderTopScorers(data);
+
+        mainEl.classList.remove("hidden");
+    }
+
+    catch(error) {
+        console.error("Failed to load results:", error);
+
+        showError(
+            "Unable to Match Details. Please try again later."
+        );
+
+    } finally {
+        hideLoading();
+    }
 }
 
 function renderHeader(match) {
@@ -118,21 +94,42 @@ function renderHeader(match) {
 }
 
 function renderPrediction(match) {
+    const content = document.getElementById("prediction-content");
+    const unavailable = document.getElementById("prediction-unavailable");
+
+    if (!match["is_pl"]) {
+        content.style.display = "none";
+        unavailable.style.display = "block";
+        return;
+    }
+
+    else if (!match["got_prediction_data"]) {
+        content.style.display = "none";
+        unavailable.style.display = "block";
+        unavailable.textContent = "Unable to get Prediction data. Try again later."
+        return;
+    }
+
+    content.style.display = "";
+    unavailable.style.display = "none";
+
     // home prob
     const homeWin = document.getElementById("home-win");
     const homeProb = document.getElementById("home-prob");
     const homeWinBar = document.getElementById("home-win-bar");
 
     homeWin.textContent = match["home_short"] + " win";
-    homeProb.textContent = match["prob_home"] + "%";
-    homeWinBar.style.width = `${match["prob_home"]}%`;
+    homeProb.textContent = `${match["prob_home"] * 100}%`;
+    homeWinBar.style.width = `${match["prob_home"] * 100}%`;
 
     // draw prob
+    const drawLbl = document.getElementById("draw-label");
     const drawProb = document.getElementById("draw-prob");
     const drawWinBar = document.getElementById("draw-bar");
 
-    drawProb.textContent = match["prob_draw"] + "%";
-    drawWinBar.style.width = `${match["prob_draw"]}%`;
+    drawLbl.textContent = "Draw";
+    drawProb.textContent = `${match["prob_draw"] * 100}%`;
+    drawWinBar.style.width = `${match["prob_draw"] * 100}%`;
 
     // away prob
     const awayWin = document.getElementById("away-win");
@@ -140,11 +137,22 @@ function renderPrediction(match) {
     const awayWinBar = document.getElementById("away-win-bar");
 
     awayWin.textContent = match["away_short"] + " win";
-    awayProb.textContent = match["prob_away"] + "%";
-    awayWinBar.style.width = `${match["prob_away"]}%`;
+    awayProb.textContent = `${match["prob_away"] * 100}%`;
+    awayWinBar.style.width = `${match["prob_away"] * 100}%`;
 }
 
 function renderForm(match){
+    const formContent = document.getElementById("form-content");
+    const formUnavailable = document.getElementById("form-unavailable");
+
+    if (!match["got_form_data"]) {
+        formContent.style.display = "none";
+        formUnavailable.style.display = "block";
+        return;
+    }
+
+    formContent.style.display = "";
+    formUnavailable.style.display = "none";
     // home form
     const homeFormName = document.getElementById("home-form-name");
     const homeForm = document.getElementById("home-form");
@@ -171,6 +179,18 @@ function renderForm(match){
 }
 
 function renderHeadToHead(match){
+    const h2hContent = document.getElementById("h2h-content")
+    const h2hUnavailable = document.getElementById("h2h-unavailable")
+
+    if (match["got_h2h_data"] == false) {
+        h2hContent.style.display = "none"
+        h2hUnavailable.style.display = "block"
+        return
+    }
+
+    h2hContent.style.display = ""
+    h2hUnavailable.style.display = "none"
+
     // h2h home wins
     const homeWins = document.getElementById("h2h-home-wins");
     const homeName = document.getElementById("h2h-home-name");
@@ -179,7 +199,9 @@ function renderHeadToHead(match){
 
     // h2h draw wins
     const draws = document.getElementById("h2h-draws");
+    const drawsLbl = document.getElementById("draws-lbl")
     draws.textContent = match["h2h_summary"]["draws"];
+    drawsLbl.textContent = "Draws"
 
     // h2h away wins
     const awayWins = document.getElementById("h2h-away-wins");
@@ -188,7 +210,7 @@ function renderHeadToHead(match){
     awayName.textContent = match["away_team"];
 
     // past scores
-    const h2hRecord = document.getElementById("h2h-record");
+    const h2hRecord = document.getElementById("h2h-meetings-list");
     for (m of match["h2h_meetings"]) {
         const rowDiv = document.createElement("div");
         rowDiv.className = "h2h-row";
@@ -216,6 +238,18 @@ function renderHeadToHead(match){
 }
 
 function renderTopScorers(match){
+    const scorersContent = document.getElementById("scorers-content")
+    const scorersUnavailable = document.getElementById("scorers-unavailable")
+
+    if (match["got_scorer_data"] == false) {
+        scorersContent.style.display = "none"
+        scorersUnavailable.style.display = "block"
+        return
+    }
+
+    scorersContent.style.display = ""
+    scorersUnavailable.style.display = "none"
+
     // home top scorers
     const homeScorers = document.getElementById("home-top-scorers");
     const homeTeam = document.getElementById("home-scorers");
@@ -255,7 +289,6 @@ function renderTopScorers(match){
         scorerRow.append(playerNameDiv, playerGoalsDiv);
         awayScorers.appendChild(scorerRow);
     }
-    
 }
 
 loadMatch();

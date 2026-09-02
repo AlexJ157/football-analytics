@@ -149,24 +149,27 @@ def format_results(results, page_number):
         "matches": formatted_results
     }
 
-def get_past_matches(team_id, number_of_matches, current_season):
+def get_past_matches(team_id, number_of_matches, current_season, competition_code):
     response = requests.get(
         f"https://api.football-data.org/v4/teams/{team_id}/matches",
         headers=headers,
         params={
             "limit": number_of_matches,
             "status": "FINISHED",
-            "competitions": "PL",
+            "competitions": competition_code,
             "season": current_season
         }
     )
+
+    if response.status_code != 200:
+        print(f"[get_past_matches] FIRST REQUEST FAILED - status {response.status_code}: {response.text}")
+        return {}
 
     data = response.json()
     matches = data["matches"]
     current_season_count = len(matches)
 
     if len(matches) < number_of_matches:
-
         matches_needed = number_of_matches - len(matches)
 
         response = requests.get(
@@ -175,18 +178,18 @@ def get_past_matches(team_id, number_of_matches, current_season):
             params={
                 "limit": matches_needed,
                 "status": "FINISHED",
-                "competitions": "PL",
+                "competitions": competition_code,
                 "season": current_season - 1
             }
         )
 
-        previous_data = response.json()
+        if response.status_code != 200:
+            print(f"[get_past_matches] SECOND REQUEST FAILED - status {response.status_code}: {response.text}")
+            return {}
 
+        previous_data = response.json()
         matches += previous_data["matches"]
         matches.sort(key=lambda m: m["utcDate"], reverse=True)
-
-    if response.status_code != 200: # TODO allow form but not prediciton by moving this
-        return {}
 
     return {
         "matches": matches,
@@ -203,6 +206,7 @@ def get_head_to_head(match_id, limit=5):
     )
 
     if response.status_code != 200:
+        print(f"[get_head_to_head] REQUEST FAILED - status {response.status_code}: {response.text}")
         return {}
 
     h2h_data = response.json()
@@ -219,6 +223,7 @@ def get_top_scorers(competition_id, season, limit=200):
     )
 
     if response.status_code != 200:
+        print(f"[get_top_scorers] REQUEST FAILED - status {response.status_code}: {response.text}")
         return {}
     
     top_scorers_data = response.json()

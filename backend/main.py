@@ -64,6 +64,8 @@ def predict_match(match: MatchRequest):
         "away_crest": match.away_badge
     }
 
+    print(match_info | match_stats)
+
     return match_info | match_stats
 
 

@@ -34,41 +34,45 @@
             </div>
         </div>
 
-        <main>
+        <main id="main-element" class="hidden">
             <div class="card">
                 <h2>Match Prediction</h2>
+                <div id="prediction-content">
+                    <!-- home prediction -->
+                    <div class="prob-row home">
+                        <div id="home-win" class="label"></div>
+                        <div id="home-prob" class="value"></div>
+                    </div>
+                    <div class="prob-bar-track">
+                        <div id="home-win-bar" class="prob-bar-fill home"></div>
+                    </div>
+                    
+                    <!-- draw prediction -->
+                    <div class="prob-row draw">
+                        <div id="draw-label" class="label"></div>
+                        <div id="draw-prob" class="value"></div>
+                    </div>
+                    <div class="prob-bar-track">
+                        <div id="draw-bar" class="prob-bar-fill draw"></div>
+                    </div>
 
-                <!-- home prediction -->
-                <div class="prob-row home">
-                    <div id="home-win" class="label">fef</div>
-                    <div id="home-prob" class="value"></div>
+                    <!-- away prediction -->
+                    <div class="prob-row away">
+                        <div id="away-win" class="label"></div>
+                        <div id="away-prob" class="value"></div>
+                    </div>
+                    <div class="prob-bar-track">
+                        <div id="away-win-bar" class="prob-bar-fill away"></div>
+                    </div>
                 </div>
-                <div class="prob-bar-track">
-                    <div id="home-win-bar" class="prob-bar-fill home"></div>
-                </div>
-                
-                <!-- draw prediction -->
-                <div class="prob-row draw">
-                    <div class="label">Draw</div>
-                    <div id="draw-prob" class="value"></div>
-                </div>
-                <div class="prob-bar-track">
-                    <div id="draw-bar" class="prob-bar-fill draw"></div>
-                </div>
-
-                <!-- away prediction -->
-                <div class="prob-row away">
-                    <div id="away-win" class="label"></div>
-                    <div id="away-prob" class="value"></div>
-                </div>
-                <div class="prob-bar-track">
-                    <div id="away-win-bar" class="prob-bar-fill away"></div>
+                <div id="prediction-unavailable" class="unavailable-message" style="display: none;">
+                    Predictions are currently only available for Premier League matches.
                 </div>
             </div>
 
             <div class="card">
                 <h2>Last 5 Results</h2>
-                <div class="form-grid">
+                <div id="form-content" class="form-grid">
                     <div>
                         <!-- home last 5 -->
                         <div id="home-form-name" class="form-team-name"></div>
@@ -80,32 +84,41 @@
                         <div id="away-form-name" class="form-team-name"></div>
                         <div id="away-form" class="form-chips"></div>
                     </div>
+                    <div id="form-unavailable" class="unavailable-message" style="display: none;">
+                        Predictions are currently only available for Premier League matches.
+                    </div>
                 </div>
             </div>
 
             <div id="h2h-record" class="card">
                 <h2>Head to Head Record</h2>
-                <div class="h2h-summary">
-                    <div>
-                        <div id="h2h-home-wins" class="num"></div>
-                        <div id="h2h-home-name" class="lbl"></div>
-                    </div>
+                <div id="h2h-content">
+                    <div class="h2h-summary">
+                        <div>
+                            <div id="h2h-home-wins" class="num"></div>
+                            <div id="h2h-home-name" class="lbl"></div>
+                        </div>
 
-                    <div>
-                        <div id="h2h-draws" class="num"></div>
-                        <div class="lbl">Draws</div>
-                    </div>
+                        <div>
+                            <div id="h2h-draws" class="num"></div>
+                            <div id="draws-lbl" class="lbl"></div>
+                        </div>
 
-                    <div>
-                        <div id="h2h-away-wins" class="num"></div>
-                        <div id="h2h-away-name" class="lbl"></div>
+                        <div>
+                            <div id="h2h-away-wins" class="num"></div>
+                            <div id="h2h-away-name" class="lbl"></div>
+                        </div>
                     </div>
+                    <div id="h2h-meetings-list"></div>
+                </div>
+                <div id="h2h-unavailable" class="unavailable-message" style="display: none;">
+                    Unable to get Head to Head data. Try again later.
                 </div>
             </div>
 
             <div class="card">
                 <h2>Top Scorers This Season</h2>
-                <div class="scorers-columns">
+                <div id="scorers-content" class="scorers-columns">
                     <!-- home top scorers -->
                     <div id="home-top-scorers">
                         <div id="home-scorers" class="scorers-team-name"></div>
@@ -114,12 +127,17 @@
                     <!-- away top scorers -->
                     <div id="away-top-scorers">
                         <div id="away-scorers" class="scorers-team-name"></div>
-                    
                     </div>
                 </div>
+                <div id="scorers-unavailable" class="unavailable-message" style="display: none;">
+                    Unable to get Top Scorers. Try again later.
+                </div>
             </div>
-
         </main>
+
+        <div id="loading" class="loading">Loading...</div>
+        <div id="error-message" style="display: none;"></div>
+
         <script src="match.js"></script>
     </body>
 </html>

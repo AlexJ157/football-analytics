@@ -32,12 +32,12 @@ function hideLoading() {
 
 // Error message
 function showError(message) {
-    errorMessage.textContent = message;
-    errorMessage.style.display = "flex";
+  errorMessage.textContent = message;
+  errorMessage.style.display = "flex";
 }
 
 function hideError() {
-    errorMessage.style.display = "none";
+  errorMessage.style.display = "none";
 }
 
 function renderMatch(m, linkable=false) {
@@ -50,7 +50,7 @@ function renderMatch(m, linkable=false) {
       sessionStorage.setItem("selectedMatch", JSON.stringify(m));
     });
   }
-  
+
   // Match time span
   const matchTimespan = document.createElement("span");
   matchTimespan.classList.add("match-time");
@@ -68,7 +68,7 @@ function renderMatch(m, linkable=false) {
   matchDetailsDiv.appendChild(matchTimespan);
   matchDetailsDiv.appendChild(competitionTagspan);
   matchDiv.appendChild(matchDetailsDiv);
-  
+
   // Teams div
   const teamsDiv = document.createElement("div");
   teamsDiv.classList.add("teams");
@@ -234,19 +234,19 @@ async function loadResults(page = 1, competition = "ALL") {
 }
 
 function populateCompetitionDropdown() {
-    const competitionSelect = document.getElementById("competition-select");
+  const competitionSelect = document.getElementById("competition-select");
 
-    const allOption = document.createElement("option");
-    allOption.value = "ALL";
-    allOption.textContent = "All Competitions";
-    competitionSelect.appendChild(allOption);
+  const allOption = document.createElement("option");
+  allOption.value = "ALL";
+  allOption.textContent = "All Competitions";
+  competitionSelect.appendChild(allOption);
 
-    for (const [name, code] of Object.entries(competitionIds)) {
-        const option = document.createElement("option");
-        option.value = code;
-        option.textContent = name;
-        competitionSelect.appendChild(option);
-    }
+  for (const [name, code] of Object.entries(competitionIds)) {
+      const option = document.createElement("option");
+      option.value = code;
+      option.textContent = name;
+      competitionSelect.appendChild(option);
+  }
 }
 
 function init() {

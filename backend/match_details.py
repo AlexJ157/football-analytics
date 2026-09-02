@@ -12,37 +12,40 @@ scaler = joblib.load(SCALER_PATH)
 feature_columns = joblib.load(FEATURE_COLUMNS_PATH)
 
 def get_match_details(match_id, home_id, home_name, away_id, away_name, season, competition_id):
-    home_data = api.get_past_matches(home_id, 5, season) 
-    away_data = api.get_past_matches(away_id, 5, season)
+    is_pl = competition_id == "PL"
+
+    home_data = api.get_past_matches(home_id, 5, season, competition_id)
+    away_data = api.get_past_matches(away_id, 5, season, competition_id)
 
     home_matches = format_past_matches(home_data, home_id)
     away_matches = format_past_matches(away_data, away_id)
 
     if home_matches["got_match_data"] and away_matches["got_match_data"]:
-        # prediction
-        raw_features = features.create_match_features(home_matches["formatted_data"], away_matches["formatted_data"], home_name, away_name)
-        raw_features = raw_features[feature_columns]
+        got_form_data = True
 
-        scaled_features = scaler.transform(raw_features)
-        prediction = predict.predict_match(scaled_features)
+        home_form = [m["result"] for m in home_matches["formatted_data"][:home_data["current_season_count"]]]
+        away_form = [m["result"] for m in away_matches["formatted_data"][:away_data["current_season_count"]]]
 
-        # form
+        if is_pl:
+            raw_features = features.create_match_features(home_matches["formatted_data"], away_matches["formatted_data"], home_name, away_name)
+            raw_features = raw_features[feature_columns]
+
+            scaled_features = scaler.transform(raw_features)
+            prediction = predict.predict_match(scaled_features)
+
+            got_prediction_data = True
+            prob_home = prediction["home_win_probability"]
+            prob_draw = prediction["draw_probability"]
+            prob_away = prediction["away_win_probability"]
+        else:
+            got_prediction_data = False
+            prob_home = prob_draw = prob_away = None
+    else:
+        got_form_data = False
+        got_prediction_data = False
+        prob_home = prob_draw = prob_away = None
         home_form = []
         away_form = []
-
-    
-        for m in home_matches["formatted_data"][:home_data["current_season_count"]]:
-            home_form.append(m["result"])
-    
-        for m in away_matches["formatted_data"][:away_data["current_season_count"]]:
-            away_form.append(m["result"])
-
-        got_match_data = True
-
-    else:
-        got_match_data = False
-
-    
 
     # h2h
     h2h_data = api.get_head_to_head(match_id, 5)
@@ -53,11 +56,13 @@ def get_match_details(match_id, home_id, home_name, away_id, away_name, season, 
     top_scorers = format_top_scorers(scorer_data, home_id, away_id)
 
     return {
-        "got_match_data": got_match_data,
-        "prob_home": prediction["home_win_probability"],
-        "prob_draw": prediction["draw_probability"],
-        "prob_away": prediction["away_win_probability"],
+        "is_pl": is_pl,
+        "got_prediction_data": got_prediction_data,
+        "prob_home": prob_home,
+        "prob_draw": prob_draw,
+        "prob_away": prob_away,
 
+        "got_form_data": got_form_data,
         "home_form": home_form,
         "away_form": away_form,
 

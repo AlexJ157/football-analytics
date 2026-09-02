@@ -269,6 +269,10 @@ main {
     display: none;
 }
 
+.hidden {
+    display: none;
+}
+
 #error-message {
     display: flex;
     align-items: flex-start;
@@ -491,6 +495,7 @@ main {
     grid-template-columns: 1fr 1fr;
     gap: 24px;
 }
+
 .scorers-team-name { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
 .scorer-row {
     display: flex;
@@ -510,4 +515,18 @@ main {
     border-radius: 999px;
     min-width: 18px;
     text-align: center;
+}
+
+.scorers-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.unavailable-message {
+    color: #6b7280;
+    font-style: italic;
+    text-align: center;
+    padding: 24px 16px;
+    font-size: 0.95rem;
 }
