@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from backend import api
 from backend import match_details
+from backend import fixture_formatters
 
 app = FastAPI()
 
@@ -31,13 +32,13 @@ def root():
 @app.get("/api/fixtures")
 def get_fixtures(page: int = 1, competition: str = 'ALL'):
     fixtures = api.get_fixtures(competition)
-    formatted_response = api.format_fixtures(fixtures, page)
+    formatted_response = fixture_formatters.format_fixtures(fixtures, page)
     return formatted_response
 
 @app.get("/api/results")
 def get_results(page: int = 1, competition: str = 'ALL'):
     results = api.get_results(competition)
-    formatted_response = api.format_results(results, page)
+    formatted_response = fixture_formatters.format_results(results, page)
     return formatted_response
 
 @app.post("/api/predict")
