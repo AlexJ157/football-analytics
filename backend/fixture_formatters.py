@@ -1,7 +1,6 @@
 import datetime
 import calendar
 
-
 def format_match(match):
     # format date
     full_date_time = match['utcDate']
@@ -44,59 +43,27 @@ def format_match(match):
         'competition_code': match['competition']['code']
     }
 
-def format_fixtures(fixtures, page_number):
+def format_fixtures(fixtures_response):
     formatted_fixtures = []
-    
-    # add logic for which to display
-
-    starting_index = (page_number * 10) - 10
-    number_of_fixtures = fixtures['resultSet']['count']
-
-    if page_number * 10 < number_of_fixtures:
-        has_more = True
-        ending_index = (page_number * 10)
-    else:
-        has_more = False
-        ending_index = number_of_fixtures
-
-    for match in fixtures['matches'][starting_index:ending_index]:
-        formatted_match = format_match(match)
-        formatted_fixtures.append(formatted_match)
+    for match in fixtures_response["matches"]:
+        formatted_fixtures.append(format_match(match))
 
     return {
-            "page": page_number,
-            "has_more": has_more,
-            "matches": formatted_fixtures
-        }
-    
+        "next_cursor": fixtures_response["next_cursor"],
+        "matches": formatted_fixtures
+    }
 
-def format_results(results, page_number):
+def format_results(results_response):
     formatted_results = []
-
-    # add logic for which to display
-    
-    starting_index = (page_number * 10) - 10
-    number_of_fixtures = results['resultSet']['count']
-
-    if page_number * 10 < number_of_fixtures:
-        has_more = True
-        ending_index = (page_number * 10)
-    else:
-        has_more = False
-        ending_index = number_of_fixtures
-
-    for match in results['matches'][starting_index:ending_index]:
+    for match in results_response["matches"]:
         formatted_match = format_match(match)
         formatted_match['winner'] = match['score']['winner']
         home_goals = str(match['score']['fullTime']['home'])
         away_goals = str(match['score']['fullTime']['away'])
-
-        score = home_goals + " - " + away_goals
-        formatted_match['score'] = score
+        formatted_match['score'] = home_goals + " - " + away_goals
         formatted_results.append(formatted_match)
 
     return {
-        "page": page_number,
-        "has_more": has_more,
+        "next_cursor": results_response["next_cursor"],
         "matches": formatted_results
     }

@@ -30,15 +30,15 @@ def root():
     }
 
 @app.get("/api/fixtures")
-def get_fixtures(page: int = 1, competition: str = 'ALL'):
-    fixtures = api.get_fixtures(competition)
-    formatted_response = fixture_formatters.format_fixtures(fixtures, page)
+def get_fixtures(competition: str = 'ALL', cursor: str = None):
+    fixtures = api.get_fixtures_windowed(competition, cursor)
+    formatted_response = fixture_formatters.format_fixtures(fixtures)
     return formatted_response
 
 @app.get("/api/results")
-def get_results(page: int = 1, competition: str = 'ALL'):
-    results = api.get_results(competition)
-    formatted_response = fixture_formatters.format_results(results, page)
+def get_results(competition: str = 'ALL', cursor: str = None):
+    results = api.get_results_windowed(competition, cursor)
+    formatted_response = fixture_formatters.format_results(results)
     return formatted_response
 
 @app.post("/api/predict")

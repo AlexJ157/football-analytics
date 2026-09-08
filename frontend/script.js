@@ -1,4 +1,3 @@
-let page = 1; // hide show more button when has_more = False
 const showMoreContainer = document.getElementById("show-more-container");
 const showMoreButton = document.getElementById("show-more");
 const noMoreMatches = document.getElementById("no-more-matches");
@@ -19,6 +18,12 @@ const competitionIds = {
   "World Cup": "WC",
   "European Championships": "EC"
 };
+
+let fixturesBuffer = [];
+let fixturesCursor = null;
+
+let resultsBuffer = [];
+let resultsCursor = null;
 
 // Loading message
 function showLoading(message) {
@@ -150,10 +155,10 @@ function renderFixtures(fixtures) {
   }
 }
 
-function updateShowMore(data, message) {
+function updateShowMore(buffer, cursor, message) {
   showMoreContainer.style.display = "flex";
 
-  if (data.has_more) {
+  if (buffer.length > 0 || cursor !== null) {
       showMoreButton.style.display = "block";
       noMoreMatches.style.display = "none";
   } else {
@@ -163,74 +168,98 @@ function updateShowMore(data, message) {
   }
 }
 
-async function loadFixtures(page = 1, competition = "ALL") {
-    showMoreContainer.style.display = "none";
-    showLoading("Loading fixtures...");
-    hideError();
+async function loadFixtures(competition = "ALL") {
+  showMoreContainer.style.display = "none";
+  showLoading("Loading fixtures...");
+  hideError();
 
-    try {
-        const response = await fetch(
-            `http://127.0.0.1:8000/api/fixtures?page=${page}&competition=${competition}`
-        );
-
-        if (!response.ok) {
-            throw new Error(`Server returned ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        renderFixtures(data["matches"], true);
-
-        updateShowMore(
-            data,
-            "There are no more fixtures in the next 10 days."
-        );
-
-    } catch (error) {
-        console.error("Failed to load fixtures:", error);
-
-        showError(
-            "Unable to load fixtures. Please try again later."
-        );
-
-    } finally {
-        hideLoading();
-    }
+  try {
+    const nextBatch = await getNextFixturesBatch(competition);
+    renderFixtures(nextBatch);
+    updateShowMore(fixturesBuffer, fixturesCursor, "There are no more fixtures in the next 10 days.");
+  } 
+  catch (error) {
+    console.error("Failed to load fixtures:", error);
+    showError("Unable to load fixtures. Please try again later.");
+  } 
+  finally {
+    hideLoading();
+  }
 }
 
-async function loadResults(page = 1, competition = "ALL") {
-    showMoreContainer.style.display = "none";
-    showLoading("Loading results...");
-    hideError();
+async function getNextFixturesBatch(competition) {
+  let nextBatch = [];
 
-    try {
-        const response = await fetch(
-            `http://127.0.0.1:8000/api/results?page=${page}&competition=${competition}`
-        );
+  if (fixturesBuffer.length >= 10) {
+    nextBatch = fixturesBuffer.splice(0, 10);
+  } 
+  else {
+    const params = new URLSearchParams({ competition });
 
-        if (!response.ok) {
-            throw new Error(`Server returned ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        renderResults(data["matches"]);
-
-        updateShowMore(
-            data,
-            "There are no more results in the next 10 days."
-        );
-
-    } catch (error) {
-        console.error("Failed to load results:", error);
-
-        showError(
-            "Unable to load results. Please try again later."
-        );
-
-    } finally {
-        hideLoading();
+    if (fixturesCursor !== null) {
+      params.append("cursor", fixturesCursor);
     }
+    
+    const response = await fetch(`http://127.0.0.1:8000/api/fixtures?${params}`);
+    
+    if (!response.ok) {
+      throw new Error(`Server returned ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    fixturesBuffer.push(...data["matches"]);
+    fixturesCursor = data["next_cursor"];
+    nextBatch = fixturesBuffer.splice(0, 10);
+  }
+  return nextBatch;
+}
+
+async function loadResults(competition = "ALL") {
+  showMoreContainer.style.display = "none";
+  showLoading("Loading results...");
+  hideError();
+
+  try {
+    const nextBatch = await getNextResultsBatch(competition);
+    renderResults(nextBatch);
+    updateShowMore(resultsBuffer, resultsCursor, "There are no more results in the next 10 days.");
+  } 
+  catch (error) {
+    console.error("Failed to load results:", error);
+    showError("Unable to load results. Please try again later.");
+  } 
+  finally {
+    hideLoading();
+  }
+}
+
+async function getNextResultsBatch(competition) {
+  let nextBatch = [];
+  
+  if (resultsBuffer.length >= 10) {
+    nextBatch = resultsBuffer.splice(0, 10);
+  } 
+  else {
+    const params = new URLSearchParams({ competition });
+  
+    if (resultsCursor !== null) {
+      params.append("cursor", resultsCursor);
+    }
+  
+    const response = await fetch(`http://127.0.0.1:8000/api/results?${params}`);
+  
+    if (!response.ok) {
+      throw new Error(`Server returned ${response.status}`);
+    }
+  
+    const data = await response.json();
+  
+    resultsBuffer.push(...data["matches"]);
+    resultsCursor = data["next_cursor"];
+    nextBatch = resultsBuffer.splice(0, 10);
+  }
+  return nextBatch;
 }
 
 function populateCompetitionDropdown() {
@@ -261,24 +290,29 @@ function init() {
   let currentCompetition = 'ALL'
 
   for (const button of toggleButtons) {
-      button.addEventListener("click", () => {
-        const container = document.getElementById("matches");
-        container.innerHTML = "";
+    button.addEventListener("click", () => {
+      const container = document.getElementById("matches");
+      container.innerHTML = "";
 
-        if (button.dataset.view === "fixtures") {
-          loadFixtures(1, currentCompetition)
-          currentView = 'fixtures'
-          button.className = 'toggle-btn active'
-          document.querySelector('[data-view="results"]').className = 'toggle-btn'
-        }
+      if (button.dataset.view === "fixtures") {
+        fixturesBuffer = [];
+        fixturesCursor = null;
+        loadFixtures(currentCompetition);
 
-        else if (button.dataset.view === "results") { 
-          loadResults(1, currentCompetition)
-          currentView = 'results'
-          button.className = 'toggle-btn active'
-          document.querySelector('[data-view="fixtures"]').className = 'toggle-btn'
-        }
-      });
+        currentView = 'fixtures';
+        button.className = 'toggle-btn active';
+        document.querySelector('[data-view="results"]').className = 'toggle-btn';
+      }
+      else if (button.dataset.view === "results") {
+        resultsBuffer = [];
+        resultsCursor = null;
+        loadResults(currentCompetition);
+
+        currentView = 'results';
+        button.className = 'toggle-btn active';
+        document.querySelector('[data-view="fixtures"]').className = 'toggle-btn';
+      }
+    });
   }
 
   // Competition select event listener
@@ -286,32 +320,33 @@ function init() {
 
   competitionSelect.addEventListener("change", () => {
     const selectedCompetition = competitionSelect.value;
+    currentCompetition = selectedCompetition;
     const container = document.getElementById("matches");
     container.innerHTML = "";
-    
+
     if (currentView == 'fixtures') {
-      loadFixtures(1, selectedCompetition);
+      fixturesBuffer = [];
+      fixturesCursor = null;
+      loadFixtures(selectedCompetition);
     }
     else if (currentView == 'results') {
-      loadResults(1, selectedCompetition)
+      resultsBuffer = [];
+      resultsCursor = null;
+      loadResults(selectedCompetition);
     }
   });
 
   // Show more button event listener
   showMoreButton.addEventListener("click", async () => {
-    page += 1;
-
-    // Hide button and show loading
     showMoreButton.style.display = "none";
     showLoading("Loading...");
 
     if (currentView === "fixtures") {
-        await loadFixtures(page, currentCompetition);
+        await loadFixtures(currentCompetition);
     } else {
-        await loadResults(page, currentCompetition);
+        await loadResults(currentCompetition);
     }
 
-    // Hide loading
     hideLoading();
   });
 }

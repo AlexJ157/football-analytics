@@ -1,7 +1,7 @@
 import requests
 import os
 from dotenv import load_dotenv 
-import datetime
+from datetime import date, timedelta
 
 load_dotenv()
 
@@ -11,7 +11,7 @@ headers = {
     "X-Auth-Token": API_TOKEN
 }
 
-page_number = 1
+MAX_WINDOWS = 5
 
 def get_matches(date_from, date_to, competition, status): # TODO test if chenging limit allows me to get more matches
     if (competition == 'ALL'):
@@ -44,14 +44,55 @@ def get_matches(date_from, date_to, competition, status): # TODO test if chengin
 
     return response.json()
 
-def get_fixtures(competition):
-    today = datetime.date.today()
-    return get_matches(today, today + datetime.timedelta(days=10), competition, "SCHEDULED") # TODO add inplay matches
+def get_fixtures_windowed(competition, cursor):
+    if cursor == None:
+        date_from = date.today()
+    else:
+        date_from = date.fromisoformat(cursor)
+    date_to = date_from + timedelta(days=10)
 
-def get_results(competition):
-    today = datetime.date.today()
-    return get_matches(today  - datetime.timedelta(days=10), today, competition, "FINISHED") # TODO check if todays results are still included
+    data = get_matches(date_from, date_to, competition, "SCHEDULED")
 
+    all_matches = []
+    windows_tried = 0
+    all_matches.extend(data["matches"])
+
+    while len(all_matches) < 10 and windows_tried < MAX_WINDOWS:
+        date_from = date_to
+        date_to = date_from + timedelta(days=10)
+        new_data = get_matches(date_from, date_to, competition, "SCHEDULED")
+        all_matches.extend(new_data["matches"])
+        windows_tried += 1
+
+    return {
+        "next_cursor": date_to.isoformat(),
+        "matches": all_matches
+    }
+
+def get_results_windowed(competition, cursor):
+    if cursor == None:
+        date_to = date.today()
+    else:
+        date_to = date.fromisoformat(cursor)
+    date_from = date_to - timedelta(days=10)
+
+    data = get_matches(date_from, date_to, competition, "FINISHED")
+
+    all_matches = []
+    windows_tried = 0
+    all_matches.extend(data["matches"])
+
+    while len(all_matches) < 10 and windows_tried < MAX_WINDOWS:
+        date_to = date_from
+        date_from = date_to - timedelta(days=10)
+        new_data = get_matches(date_from, date_to, competition, "FINISHED")
+        all_matches.extend(new_data["matches"])
+        windows_tried += 1
+
+    return {
+        "next_cursor": date_from.isoformat(),
+        "matches": all_matches
+    }
 
 def get_past_matches(team_id, number_of_matches, current_season, competition_code):
     response = requests.get(
