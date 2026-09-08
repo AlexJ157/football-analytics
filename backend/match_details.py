@@ -3,6 +3,7 @@ from backend import api
 from prediction.src import features
 from prediction.src import predict
 from pathlib import Path
+from datetime import date,timedelta
 import joblib
 
 SCALER_PATH = Path(__file__).resolve().parent.parent / "prediction" / "models" / "scaler.pkl"
@@ -11,8 +12,14 @@ FEATURE_COLUMNS_PATH = Path(__file__).resolve().parent.parent / "prediction" / "
 scaler = joblib.load(SCALER_PATH)
 feature_columns = joblib.load(FEATURE_COLUMNS_PATH)
 
-def get_match_details(match_id, home_id, home_name, away_id, away_name, season, competition_id):
+def get_match_details(match_id, home_id, home_name, away_id, away_name, competition_id):
     is_pl = competition_id == "PL"
+
+    today = date.today()
+    if today.month >= 8:
+        season = today.year
+    else:
+        season = today.year - 1
 
     home_data = api.get_past_matches(home_id, 5, season, competition_id)
     away_data = api.get_past_matches(away_id, 5, season, competition_id)
@@ -115,8 +122,6 @@ def format_past_matches(data, team_id):
         "formatted_data": formatted_data
     }
 
-
-
 def format_head_to_head(h2h_data, home_id, away_id):
     if not h2h_data:
         return {
@@ -174,7 +179,6 @@ def format_head_to_head(h2h_data, home_id, away_id):
         "meetings": h2h_meetings
     }
 
-
 def format_top_scorers(data, home_id, away_id, number_of_scorers=3):
     if not data:
         return {
@@ -206,4 +210,3 @@ def format_top_scorers(data, home_id, away_id, number_of_scorers=3):
         "home_top_scorers": home_scorers,
         "away_top_scorers": away_scorers
     }
-# get_match_details(560555, 354, "Crystal Palace", 65, "Man City", 2026, "PL")

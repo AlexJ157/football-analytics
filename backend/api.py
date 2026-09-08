@@ -13,7 +13,7 @@ headers = {
 
 MAX_WINDOWS = 5
 
-def get_matches(date_from, date_to, competition, status): # TODO test if chenging limit allows me to get more matches
+def get_matches(date_from, date_to, competition, status):
     if (competition == 'ALL'):
         response = requests.get(
             "https://api.football-data.org/v4/matches",

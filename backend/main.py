@@ -44,10 +44,10 @@ def get_results(competition: str = 'ALL', cursor: str = None):
 @app.post("/api/predict")
 def predict_match(match: MatchRequest):
     match_stats = match_details.get_match_details(
-        match.match_id,
-        match.home_team_id, match.home_short_name,
-        match.away_team_id, match.away_short_name,
-        2026, match.competition_code  # TODO: auto-update season
+        match.match_id, match.home_team_id, 
+        match.home_short_name, match.away_team_id, 
+        match.away_short_name,
+        match.competition_code
     )
 
     match_info = {
