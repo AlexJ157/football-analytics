@@ -25,6 +25,8 @@ let fixturesCursor = null;
 let resultsBuffer = [];
 let resultsCursor = null;
 
+let lastDateLabel = "";
+
 // Loading message
 function showLoading(message) {
   loading.textContent = message;
@@ -99,7 +101,6 @@ function renderMatch(m, linkable=false) {
 
 function renderResults(results) {
   const container = document.getElementById("matches");
-  let lastDateLabel = "";
 
   for(const m of results) {
     // Date label
@@ -128,7 +129,6 @@ function renderResults(results) {
 
 function renderFixtures(fixtures) {
   const container = document.getElementById("matches");
-  let lastDateLabel = "";
 
   for(const m of fixtures) {
     // Date label
@@ -176,7 +176,7 @@ async function loadFixtures(competition = "ALL") {
   try {
     const nextBatch = await getNextFixturesBatch(competition);
     renderFixtures(nextBatch);
-    updateShowMore(fixturesBuffer, fixturesCursor, "There are no more fixtures in the next 10 days.");
+    updateShowMore(fixturesBuffer, fixturesCursor, "There are no more fixtures in the next 10 days."); // todo update error messages
   } 
   catch (error) {
     console.error("Failed to load fixtures:", error);
@@ -191,7 +191,7 @@ async function getNextFixturesBatch(competition) {
   let nextBatch = [];
 
   if (fixturesBuffer.length >= 10) {
-    nextBatch = fixturesBuffer.splice(0, 10);
+    nextBatch = fixturesBuffer.splice(0, 10); // todo update page size
   } 
   else {
     const params = new URLSearchParams({ competition });
@@ -293,6 +293,7 @@ function init() {
     button.addEventListener("click", () => {
       const container = document.getElementById("matches");
       container.innerHTML = "";
+      lastDateLabel = ""
 
       if (button.dataset.view === "fixtures") {
         fixturesBuffer = [];
@@ -319,6 +320,7 @@ function init() {
   const competitionSelect = document.getElementById("competition-select");
 
   competitionSelect.addEventListener("change", () => {
+    lastDateLabel = ""
     const selectedCompetition = competitionSelect.value;
     currentCompetition = selectedCompetition;
     const container = document.getElementById("matches");

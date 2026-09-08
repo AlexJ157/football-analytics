@@ -12,6 +12,7 @@ headers = {
 }
 
 MAX_WINDOWS = 5
+SUPPORTED_COMPETITIONS = ["PL", "CL", "PD", "SA", "BL1", "FL1", "ELC", "DED", "PPL", "BSA", "WC", "EC"]
 
 def get_matches(date_from, date_to, competition, status):
     if (competition == 'ALL'):
@@ -21,6 +22,7 @@ def get_matches(date_from, date_to, competition, status):
             params={
                 "dateFrom": date_from,
                 "dateTo": date_to,
+                "competitions": ",".join(SUPPORTED_COMPETITIONS),
                 "status": status,
                 "limit": 500
             }

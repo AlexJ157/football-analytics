@@ -17,7 +17,7 @@ def predict_match(features):
 
     return {
         "prediction": str(prediction),
-        "away_win_probability": round(float(probabilities[0]), 3),
-        "draw_probability": round(float(probabilities[1]), 3),
-        "home_win_probability": round(float(probabilities[2]), 3)
+        "away_win_probability": float(probabilities[0]),
+        "draw_probability": float(probabilities[1]),
+        "home_win_probability": float(probabilities[2])
     }
