@@ -3,6 +3,7 @@ const showMoreButton = document.getElementById("show-more");
 const noMoreMatches = document.getElementById("no-more-matches");
 const loading = document.getElementById("loading")
 const errorMessage = document.getElementById("error-message");
+const pageSize = 10;
 
 const competitionIds = {
   "Premier League": "PL",
@@ -190,8 +191,8 @@ async function loadFixtures(competition = "ALL") {
 async function getNextFixturesBatch(competition) {
   let nextBatch = [];
 
-  if (fixturesBuffer.length >= 10) {
-    nextBatch = fixturesBuffer.splice(0, 10); // todo update page size
+  if (fixturesBuffer.length >= pageSize) {
+    nextBatch = fixturesBuffer.splice(0, pageSize); // todo update page size
   } 
   else {
     const params = new URLSearchParams({ competition });
@@ -210,7 +211,7 @@ async function getNextFixturesBatch(competition) {
     
     fixturesBuffer.push(...data["matches"]);
     fixturesCursor = data["next_cursor"];
-    nextBatch = fixturesBuffer.splice(0, 10);
+    nextBatch = fixturesBuffer.splice(0, pageSize);
   }
   return nextBatch;
 }
@@ -223,7 +224,7 @@ async function loadResults(competition = "ALL") {
   try {
     const nextBatch = await getNextResultsBatch(competition);
     renderResults(nextBatch);
-    updateShowMore(resultsBuffer, resultsCursor, "There are no more results in the next 10 days.");
+    updateShowMore(resultsBuffer, resultsCursor, "There are no more results in the next 10 days."); // todo change error message
   } 
   catch (error) {
     console.error("Failed to load results:", error);
@@ -237,8 +238,8 @@ async function loadResults(competition = "ALL") {
 async function getNextResultsBatch(competition) {
   let nextBatch = [];
   
-  if (resultsBuffer.length >= 10) {
-    nextBatch = resultsBuffer.splice(0, 10);
+  if (resultsBuffer.length >= pageSize) {
+    nextBatch = resultsBuffer.splice(0, pageSize);
   } 
   else {
     const params = new URLSearchParams({ competition });
@@ -257,7 +258,7 @@ async function getNextResultsBatch(competition) {
   
     resultsBuffer.push(...data["matches"]);
     resultsCursor = data["next_cursor"];
-    nextBatch = resultsBuffer.splice(0, 10);
+    nextBatch = resultsBuffer.splice(0, pageSize);
   }
   return nextBatch;
 }
@@ -280,14 +281,25 @@ function populateCompetitionDropdown() {
 
 function init() {
   populateCompetitionDropdown();
-  loadFixtures();
+
+  let selectedCompetition;
+  if (sessionStorage.getItem("selectedCompetition") == null) {
+    selectedCompetition = 'ALL';
+  }
+  else {
+    selectedCompetition = sessionStorage.getItem("selectedCompetition");
+  }
+  loadFixtures(selectedCompetition);
+
+  const competitionSelect = document.getElementById("competition-select");
+  competitionSelect.value = selectedCompetition;   
 
   // Event Listeners
 
-  // Fixture and result toggle event listener - need to hide show more when switching
+  // Fixture and result toggle event listener
   const toggleButtons = document.querySelectorAll(".toggle-btn");
   let currentView = 'fixtures'
-  let currentCompetition = 'ALL'
+
 
   for (const button of toggleButtons) {
     button.addEventListener("click", () => {
@@ -298,7 +310,7 @@ function init() {
       if (button.dataset.view === "fixtures") {
         fixturesBuffer = [];
         fixturesCursor = null;
-        loadFixtures(currentCompetition);
+        loadFixtures(selectedCompetition);
 
         currentView = 'fixtures';
         button.className = 'toggle-btn active';
@@ -307,7 +319,7 @@ function init() {
       else if (button.dataset.view === "results") {
         resultsBuffer = [];
         resultsCursor = null;
-        loadResults(currentCompetition);
+        loadResults(selectedCompetition);
 
         currentView = 'results';
         button.className = 'toggle-btn active';
@@ -317,14 +329,14 @@ function init() {
   }
 
   // Competition select event listener
-  const competitionSelect = document.getElementById("competition-select");
 
   competitionSelect.addEventListener("change", () => {
-    lastDateLabel = ""
-    const selectedCompetition = competitionSelect.value;
-    currentCompetition = selectedCompetition;
     const container = document.getElementById("matches");
+
     container.innerHTML = "";
+    lastDateLabel = "";
+    selectedCompetition = competitionSelect.value; 
+    sessionStorage.setItem("selectedCompetition", selectedCompetition);
 
     if (currentView == 'fixtures') {
       fixturesBuffer = [];
@@ -344,9 +356,9 @@ function init() {
     showLoading("Loading...");
 
     if (currentView === "fixtures") {
-        await loadFixtures(currentCompetition);
+        await loadFixtures(selectedCompetition);
     } else {
-        await loadResults(currentCompetition);
+        await loadResults(selectedCompetition);
     }
 
     hideLoading();

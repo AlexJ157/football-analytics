@@ -119,7 +119,7 @@ function renderPrediction(match) {
     const homeWinBar = document.getElementById("home-win-bar");
 
     homeWin.textContent = match["home_short"] + " win";
-    homeProb.textContent = `${round(match["prob_home"] * 100, 1)}%`;
+    homeProb.textContent = `${Number((match["prob_home"] * 100).toFixed(1))}%`;
     homeWinBar.style.width = `${match["prob_home"] * 100}%`;
 
     // draw prob
@@ -128,7 +128,7 @@ function renderPrediction(match) {
     const drawWinBar = document.getElementById("draw-bar");
 
     drawLbl.textContent = "Draw";
-    drawProb.textContent = `${round(match["prob_draw"] * 100, 1)}%`;
+    drawProb.textContent = `${Number((match["prob_draw"] * 100).toFixed(1))}%`;
     drawWinBar.style.width = `${match["prob_draw"] * 100}%`;
 
     // away prob
@@ -137,7 +137,7 @@ function renderPrediction(match) {
     const awayWinBar = document.getElementById("away-win-bar");
 
     awayWin.textContent = match["away_short"] + " win";
-    awayProb.textContent = `${round(match["prob_away"] * 100, 1)}%`;
+    awayProb.textContent = `${Number((match["prob_away"] * 100).toFixed(1))}%`;
     awayWinBar.style.width = `${match["prob_away"] * 100}%`;
 }
 

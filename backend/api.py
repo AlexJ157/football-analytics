@@ -12,6 +12,7 @@ headers = {
 }
 
 MAX_WINDOWS = 5
+PAGE_SIZE = 10
 SUPPORTED_COMPETITIONS = ["PL", "CL", "PD", "SA", "BL1", "FL1", "ELC", "DED", "PPL", "BSA", "WC", "EC"]
 
 def get_matches(date_from, date_to, competition, status):
@@ -39,10 +40,11 @@ def get_matches(date_from, date_to, competition, status):
                 "limit": 500
             }
         )
-
+    if response.status_code != 200:
+        print(f"[get_matches] REQUEST FAILED - status {response.status_code}: {response.text}")
+        return {}
 
     print("STATUS:", response.status_code)
-    #print("RESPONSE:", response.text)
 
     return response.json()
 
@@ -55,14 +57,25 @@ def get_fixtures_windowed(competition, cursor):
 
     data = get_matches(date_from, date_to, competition, "SCHEDULED")
 
+    if not data:
+        return {
+            "next_cursor": date_from.isoformat(),
+            "matches": []
+        }
+
     all_matches = []
     windows_tried = 0
     all_matches.extend(data["matches"])
 
-    while len(all_matches) < 10 and windows_tried < MAX_WINDOWS:
-        date_from = date_to
-        date_to = date_from + timedelta(days=10)
-        new_data = get_matches(date_from, date_to, competition, "SCHEDULED")
+    while len(all_matches) < PAGE_SIZE and windows_tried < MAX_WINDOWS:
+        next_date_from = date_to
+        next_date_to = next_date_from + timedelta(days=10)
+        new_data = get_matches(next_date_from, next_date_to, competition, "SCHEDULED")
+
+        if not new_data:
+            break
+
+        date_from, date_to = next_date_from, next_date_to
         all_matches.extend(new_data["matches"])
         windows_tried += 1
 
@@ -80,15 +93,26 @@ def get_results_windowed(competition, cursor):
 
     data = get_matches(date_from, date_to, competition, "FINISHED")
 
+    if not data:
+        return {
+            "next_cursor": date_from.isoformat(),
+            "matches": []
+        }
+
     all_matches = []
     windows_tried = 0
     all_matches.extend(data["matches"])
 
-    while len(all_matches) < 10 and windows_tried < MAX_WINDOWS:
-        date_to = date_from
-        date_from = date_to - timedelta(days=10)
+    while len(all_matches) < PAGE_SIZE and windows_tried < MAX_WINDOWS:
+        next_date_to = date_from
+        next_date_from = next_date_to - timedelta(days=10)
         new_data = get_matches(date_from, date_to, competition, "FINISHED")
+
+        if not new_data:
+            break
+
         all_matches.extend(new_data["matches"])
+        date_from, date_to = next_date_from, next_date_to
         windows_tried += 1
 
     return {

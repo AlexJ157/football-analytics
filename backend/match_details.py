@@ -31,7 +31,9 @@ def get_match_details(match_id, home_id, home_name, away_id, away_name, competit
         got_form_data = True
 
         home_form = [m["result"] for m in home_matches["formatted_data"][:home_data["current_season_count"]]]
+        home_form.reverse()
         away_form = [m["result"] for m in away_matches["formatted_data"][:away_data["current_season_count"]]]
+        away_form.reverse()
 
         if is_pl:
             raw_features = features.create_match_features(home_matches["formatted_data"], away_matches["formatted_data"], home_name, away_name)
