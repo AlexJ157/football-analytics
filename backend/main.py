@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from backend import api
 from backend import match_details
@@ -31,15 +31,22 @@ def root():
 
 @app.get("/api/fixtures")
 def get_fixtures(competition: str = 'ALL', cursor: str = None):
-    fixtures = api.get_fixtures_windowed(competition, cursor)
-    formatted_response = fixture_formatters.format_fixtures(fixtures)
-    return formatted_response
+    try:
+        fixtures = api.get_fixtures_windowed(competition, cursor)
+        formatted_response = fixture_formatters.format_fixtures(fixtures)
+        return formatted_response
+    except api.FixturesUpstreamError:
+        raise HTTPException(status_code=502, detail="Unable to fetch fixtures from upstream API")
+
 
 @app.get("/api/results")
 def get_results(competition: str = 'ALL', cursor: str = None):
-    results = api.get_results_windowed(competition, cursor)
-    formatted_response = fixture_formatters.format_results(results)
-    return formatted_response
+    try:
+        results = api.get_results_windowed(competition, cursor)
+        formatted_response = fixture_formatters.format_results(results)
+        return formatted_response
+    except api.ResultsUpstreamError:
+        raise HTTPException(status_code=502, detail="Unable to fetch results from upstream API")
 
 @app.post("/api/predict")
 def predict_match(match: MatchRequest):

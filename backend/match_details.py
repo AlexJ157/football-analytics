@@ -1,9 +1,8 @@
 from datetime import datetime
 from backend import api
-from prediction.src import features
-from prediction.src import predict
+from prediction.src import features, predict, elo
 from pathlib import Path
-from datetime import date,timedelta
+from datetime import date
 import joblib
 
 SCALER_PATH = Path(__file__).resolve().parent.parent / "prediction" / "models" / "scaler.pkl"
@@ -36,6 +35,8 @@ def get_match_details(match_id, home_id, home_name, away_id, away_name, competit
         away_form.reverse()
 
         if is_pl:
+            elo.sync_elo_ratings()
+            
             raw_features = features.create_match_features(home_matches["formatted_data"], away_matches["formatted_data"], home_name, away_name)
             raw_features = raw_features[feature_columns]
 

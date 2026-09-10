@@ -15,6 +15,12 @@ MAX_WINDOWS = 5
 PAGE_SIZE = 10
 SUPPORTED_COMPETITIONS = ["PL", "CL", "PD", "SA", "BL1", "FL1", "ELC", "DED", "PPL", "BSA", "WC", "EC"]
 
+class FixturesUpstreamError(Exception):
+    pass
+
+class ResultsUpstreamError(Exception):
+    pass
+
 def get_matches(date_from, date_to, competition, status):
     if (competition == 'ALL'):
         response = requests.get(
@@ -40,12 +46,11 @@ def get_matches(date_from, date_to, competition, status):
                 "limit": 500
             }
         )
+
     if response.status_code != 200:
         print(f"[get_matches] REQUEST FAILED - status {response.status_code}: {response.text}")
         return {}
-
-    print("STATUS:", response.status_code)
-
+    
     return response.json()
 
 def get_fixtures_windowed(competition, cursor):
@@ -58,10 +63,7 @@ def get_fixtures_windowed(competition, cursor):
     data = get_matches(date_from, date_to, competition, "SCHEDULED")
 
     if not data:
-        return {
-            "next_cursor": date_from.isoformat(),
-            "matches": []
-        }
+        raise FixturesUpstreamError("Failed to fetch initial fixtures window")
 
     all_matches = []
     windows_tried = 0
@@ -73,7 +75,7 @@ def get_fixtures_windowed(competition, cursor):
         new_data = get_matches(next_date_from, next_date_to, competition, "SCHEDULED")
 
         if not new_data:
-            break
+            raise FixturesUpstreamError("Failed to fetch subsequent fixtures window")
 
         date_from, date_to = next_date_from, next_date_to
         all_matches.extend(new_data["matches"])
@@ -86,7 +88,7 @@ def get_fixtures_windowed(competition, cursor):
 
 def get_results_windowed(competition, cursor):
     if cursor == None:
-        date_to = date.today()
+        date_to = date.today() + timedelta(days=1)
     else:
         date_to = date.fromisoformat(cursor)
     date_from = date_to - timedelta(days=10)
@@ -114,6 +116,8 @@ def get_results_windowed(competition, cursor):
         all_matches.extend(new_data["matches"])
         date_from, date_to = next_date_from, next_date_to
         windows_tried += 1
+
+    all_matches.sort(key=lambda m: m["utcDate"], reverse=True)
 
     return {
         "next_cursor": date_from.isoformat(),

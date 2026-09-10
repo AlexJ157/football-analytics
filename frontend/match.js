@@ -57,7 +57,7 @@ async function loadMatch() {
         console.error("Failed to load results:", error);
 
         showError(
-            "Unable to Match Details. Please try again later."
+            "Unable to get Match Details. Please try again later."
         );
 
     } finally {

@@ -37,7 +37,6 @@ def calculate_average_goals_conceded(matches, n):
     average_goals_conceded = total_conceded / n
     return average_goals_conceded
 
-# TODO have to update elos live
 def calculate_elo(team_name):
     elo_path = Path(__file__).resolve().parent.parent / "data" / "elo_state.json"
     with open(elo_path, "r") as f:

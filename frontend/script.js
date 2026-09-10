@@ -177,7 +177,7 @@ async function loadFixtures(competition = "ALL") {
   try {
     const nextBatch = await getNextFixturesBatch(competition);
     renderFixtures(nextBatch);
-    updateShowMore(fixturesBuffer, fixturesCursor, "There are no more fixtures in the next 10 days."); // todo update error messages
+    updateShowMore(fixturesBuffer, fixturesCursor, "No upcoming fixtures found.");
   } 
   catch (error) {
     console.error("Failed to load fixtures:", error);
@@ -192,7 +192,7 @@ async function getNextFixturesBatch(competition) {
   let nextBatch = [];
 
   if (fixturesBuffer.length >= pageSize) {
-    nextBatch = fixturesBuffer.splice(0, pageSize); // todo update page size
+    nextBatch = fixturesBuffer.splice(0, pageSize);
   } 
   else {
     const params = new URLSearchParams({ competition });
@@ -224,7 +224,7 @@ async function loadResults(competition = "ALL") {
   try {
     const nextBatch = await getNextResultsBatch(competition);
     renderResults(nextBatch);
-    updateShowMore(resultsBuffer, resultsCursor, "There are no more results in the next 10 days."); // todo change error message
+    updateShowMore(resultsBuffer, resultsCursor, "No more recent results.");
   } 
   catch (error) {
     console.error("Failed to load results:", error);
@@ -366,4 +366,3 @@ function init() {
 }
 
 init();
-
