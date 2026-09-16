@@ -1,10 +1,19 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from backend import api
 from backend import match_details
 from backend import fixture_formatters
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://127.0.0.1:8000", "http://localhost:8000"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class MatchRequest(BaseModel):
     match_id: int
@@ -23,7 +32,7 @@ class MatchRequest(BaseModel):
     competition_code: str
 
 
-@app.get("/")
+@app.get("/api/status")
 def root():
     return {
         "message": "Football Analytics API is running"
@@ -75,3 +84,5 @@ def predict_match(match: MatchRequest):
     print(match_info | match_stats)
 
     return match_info | match_stats
+
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
