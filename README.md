@@ -1,40 +1,57 @@
 # Football Analytics
 
-A full-stack football analytics application that uses live and historical match data with machine learning to analyse team form and predict match outcomes. Built end-to-end — data pipeline, ML model, API, and frontend — as a portfolio project.
+A full-stack app that predicts football match outcomes using machine learning.
+
+It pulls live and historical match data, engineers features like team form and Elo ratings, and feeds them into a trained model, all built end-to-end: data pipeline, ML model, API, and frontend.
+
+![Python](https://img.shields.io/badge/Python-3.x-blue) ![FastAPI](https://img.shields.io/badge/FastAPI-backend-teal) ![scikit--learn](https://img.shields.io/badge/scikit--learn-ML-orange)
+
+## Screenshots
+
+**Fixtures view**
+![Fixtures view](docs/screenshots/fixtures.png)
+
+**Results view**
+![Results view](docs/screenshots/results.png)
+
+**Match prediction page**
+![Match prediction page](docs/screenshots/match-prediction-1.png)
+
+![Match prediction page continued](docs/screenshots/match-prediction-2.png)
 
 ## Features
 
-- Retrieve fixtures and results via the football-data.org API
-- Analyse recent team form and head-to-head history
-- Calculate and maintain team Elo ratings, with season-boundary regression
-- Generate engineered match statistics (goals scored/conceded, home/away differentials)
-- Predict match outcome (home win / draw / away win) with a probability for each
-- Match detail pages with prediction probability bars, form chips, h2h history, and top scorers
-- League filtering, fixture/results toggling, and date-grouped match cards
+* Retrieve fixtures and results via the football-data.org API
+* Analyse recent team form and head-to-head history
+* Calculate and maintain team Elo ratings, with season-boundary regression
+* Generate engineered match statistics (goals scored/conceded, home/away differentials)
+* Predict match outcome (home win / draw / away win) with a probability for each
+* Match detail pages with prediction probability bars, form chips, h2h history, and top scorers
+* League filtering, fixture/results toggling, and date-grouped match cards
 
 ## Machine Learning
 
-A Random Forest classifier predicts match outcome from Elo ratings, recent form, and goals-based features, with home/away statistical differentials. Predictions are currently scoped to the Premier League, where the historical dataset is richest — form and h2h data remain available for all competitions.
+A custom **Elo rating system** forms the core feature, built from scratch, with season-boundary regression so ratings don't carry an unfair edge across seasons. On top of that sits engineered form and goals-based features (recent form, home/away goal differentials).
 
-The model runs at **~53.6% accuracy** against a ~44.6% majority-class baseline (always predicting home win), validated with cross-validation and backtested log loss on the Elo regression.
+Two models were tested. **Logistic regression** topped out at **50% accuracy**, and consistently underperformed because it rarely predicted draws, leaning too hard toward picking a winner. A **Random Forest classifier** handled that better, reaching **53.6% accuracy** against a 44.6% baseline (always predicting home win).
 
-**Notable fixes during development:**
-- A `StandardScaler` data leak between training and inference
-- An Elo tuple-unpacking bug that leaked post-match ratings into pre-match features
-- A backwards label mapping in the prediction pipeline
-- Cross-validation confirmed the accuracy ceiling sits in the feature set rather than model choice — informed where future work should focus (see below)
+Getting there involved fixing three real bugs: a `StandardScaler` leak between training and inference, an Elo tuple-unpacking error leaking post-match ratings into pre-match features, and a backwards label mapping in the prediction pipeline.
 
-The free tier of the football-data.org API doesn't expose odds or shot data for upcoming fixtures, so the live model is deliberately restricted to Elo/form/goals features. An odds-inclusive variant was explored separately and is documented as a possible extension.
+Predictions are scoped to the **Premier League** for now, where the historical data is deepest. Form and head-to-head data still work for every competition, it's only the ML prediction that's Premier League-only.
+
+**Why no odds/shot data?** The free football-data.org API tier doesn't include odds or shot data for upcoming fixtures, so the live model sticks to Elo/form/goals features. An odds-inclusive version was tested separately, see Extensions.
+
+Cross-validation shows the current ceiling is the feature set, not the model choice, that's what's driving the Extensions below.
 
 ## Tech Stack
 
-- **Backend:** Python, FastAPI
-- **Data processing:** Pandas, NumPy
-- **Machine learning:** Scikit-learn, Joblib (model persistence)
-- **Frontend:** JavaScript, HTML, CSS
-- **Data source:** football-data.org API
+* Backend: Python, FastAPI
+* Data processing: Pandas, NumPy
+* Machine learning: Scikit-learn, Joblib (model persistence)
+* Frontend: JavaScript, HTML, CSS
+* Data source: football-data.org API
 
-The backend handles all filtering, sorting, and pagination — the frontend stays a thin presentation layer over the API.
+The backend handles all filtering, sorting, and pagination, the frontend stays a thin presentation layer over the API.
 
 ## Project Structure
 
@@ -46,34 +63,53 @@ football-analytics/
 └── requirements.txt
 ```
 
+---
+
 ## Running the Project
 
-Install dependencies:
+**1. Clone the repo**
 
-```bash
+```
+git clone https://github.com/AlexJ157/football-analytics.git
+cd football-analytics
+```
+
+**2. Install dependencies**
+
+```
 pip install -r requirements.txt
 ```
 
-Start the backend:
+**3. Configure your API key**
 
-```bash
+Get a free API key from [football-data.org](https://www.football-data.org/), then create a `.env` file in the project root:
+
+```
+FOOTBALL_DATA_API_KEY=your_key_here
+```
+
+**4. Start the server**
+
+```
 uvicorn backend.main:app --reload
 ```
 
-API docs are then available at:
+**5. Open the app**
 
-```
-http://127.0.0.1:8000/docs
-```
+Go to `http://127.0.0.1:8000` in your browser.
+
+Don't open `frontend/index.html` directly, the frontend is served by FastAPI, and opening the file straight from disk breaks the API requests (browsers block `file://` pages from making fetch calls).
+
+API docs are available at `http://127.0.0.1:8000/api/status` for a health check, and full interactive docs at `http://127.0.0.1:8000/docs`.
+
+---
 
 ## Possible Extensions
 
-- Incorporate odds and shot-based features once a paid API tier is available
-- Predicted scorelines, not just outcome probabilities
-- Broaden ML predictions beyond the Premier League as more historical data is gathered
+* Incorporate odds and shot-based features once a paid API tier is available
+* Predicted scorelines, not just outcome probabilities
+* Broaden ML predictions beyond the Premier League as more historical data is gathered
 
-The API documentation is then available at:
+## License
 
-```text
-http://127.0.0.1:8000/docs
-```
+MIT, see [LICENSE](LICENSE)
