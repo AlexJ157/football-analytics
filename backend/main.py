@@ -75,5 +75,3 @@ def predict_match(match: MatchRequest):
     print(match_info | match_stats)
 
     return match_info | match_stats
-
-
