@@ -1,7 +1,7 @@
 import json
 import pandas as pd
 from pathlib import Path
-#from prediction.src import elo
+from prediction.src import elo
 
 def calculate_form(matches, n):
     recent_matches = matches[:n]
@@ -37,14 +37,14 @@ def calculate_average_goals_conceded(matches, n):
     average_goals_conceded = total_conceded / n
     return average_goals_conceded
 
-# TODO have to update elos live
 def calculate_elo(team_name):
-    elo_path = Path(__file__).resolve().parent.parent / "data" / "current_elos.json"
+    elo_path = Path(__file__).resolve().parent.parent / "data" / "elo_state.json"
     with open(elo_path, "r") as f:
-        ratings = json.load(f)
+        ratings = json.load(f)["ratings"]
 
-    elo = ratings[team_name]
-    return elo
+    team_name = elo.to_csv_name(team_name)
+    rating = ratings[team_name]
+    return rating
 
 
 

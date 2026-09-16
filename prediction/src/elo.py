@@ -68,7 +68,7 @@ def process_match(home_team, away_team, result, ratings):
     home_elo = ratings.get(home_team)
     away_elo = ratings.get(away_team)
 
-    new_home_elo, new_away_elo = update_match_ratings(home_elo, away_elo, result, 30, 100) # TODO change k_factor and home_adv
+    new_home_elo, new_away_elo = update_match_ratings(home_elo, away_elo, result, 30, 100)
 
     ratings[home_team] = new_home_elo
     ratings[away_team] = new_away_elo
