@@ -201,7 +201,7 @@ async function getNextFixturesBatch(competition) {
       params.append("cursor", fixturesCursor);
     }
     
-    const response = await fetch(`http://127.0.0.1:8000/api/fixtures?${params}`);
+    const response = await fetch(`/api/fixtures?${params}`);
     
     if (!response.ok) {
       throw new Error(`Server returned ${response.status}`);
@@ -248,7 +248,7 @@ async function getNextResultsBatch(competition) {
       params.append("cursor", resultsCursor);
     }
   
-    const response = await fetch(`http://127.0.0.1:8000/api/results?${params}`);
+    const response = await fetch(`/api/results?${params}`);
   
     if (!response.ok) {
       throw new Error(`Server returned ${response.status}`);
