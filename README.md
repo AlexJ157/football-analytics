@@ -35,7 +35,7 @@ A custom **Elo rating system** forms the core feature, built from scratch, with 
 
 Two models were tested. **Logistic regression** topped out at **50% accuracy**, and consistently underperformed because it rarely predicted draws, leaning too hard toward picking a winner. A **Random Forest classifier** handled that better, reaching **53.6% accuracy** against a 44.6% baseline (always predicting home win).
 
-Getting there involved fixing three real bugs: a `StandardScaler` leak between training and inference, an Elo tuple-unpacking error leaking post-match ratings into pre-match features, and a backwards label mapping in the prediction pipeline.
+Getting there involved fixing three real bugs: a StandardScaler leak between training and inference, an Elo tuple-unpacking error leaking post-match ratings into pre-match features, and a backwards label mapping in the prediction pipeline.
 
 Predictions are scoped to the **Premier League** for now, where the historical data is deepest. Form and head-to-head data still work for every competition, it's only the ML prediction that's Premier League-only.
 
